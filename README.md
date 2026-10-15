@@ -37,6 +37,21 @@ Upload the folder as-is to any static host with HTTPS (GitHub Pages, Netlify, Cl
 
 > **Important:** after changing any file, bump `VERSION` in `sw.js` so installed clients pick up the new cache.
 
+### Versioning
+
+The app follows [Semantic Versioning](https://semver.org/). The current version is `VERSION` in `sw.js`, which also names the offline cache (`safe-mark-doc-v<version>`):
+
+- **MAJOR** — incompatible changes, e.g. stored preferences or the trace log can no longer be read.
+- **MINOR** — new features that keep compatibility.
+- **PATCH** — bug fixes and small adjustments.
+
+To release a version, update `VERSION`, commit, and tag the commit with the same version prefixed by `v`:
+
+```sh
+git tag v1.0.0
+git push --tags
+```
+
 ### GitHub Pages
 
 1. Push the repository to GitHub.

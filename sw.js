@@ -1,6 +1,6 @@
 // Service worker: precaches the whole app so it works fully offline.
-const VERSION = 'v5';
-const APP_CACHE = `safe-mark-doc-${VERSION}`;
+const VERSION = '1.0.0'; // Semantic Versioning (https://semver.org)
+const APP_CACHE = `safe-mark-doc-v${VERSION}`;
 const SHARE_CACHE = 'share-target';
 
 const ASSETS = [
