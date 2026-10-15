@@ -33,7 +33,7 @@ Then open <http://localhost:8080>.
 
 ## Deployment
 
-Upload the folder as-is to any static host with HTTPS (GitHub Pages, Netlify, Cloudflare Pages, …).
+The app is deployed to GitHub Pages automatically when a version is released (see below). It can also be hosted on any static host with HTTPS (Netlify, Cloudflare Pages, …): upload the app files listed in [Project structure](#project-structure).
 
 > **Important:** after changing any file, bump `VERSION` in `sw.js` so installed clients pick up the new cache.
 
@@ -48,15 +48,28 @@ The app follows [Semantic Versioning](https://semver.org/). The current version 
 To release a version, update `VERSION`, commit, and tag the commit with the same version prefixed by `v`:
 
 ```sh
-git tag v1.0.0
-git push --tags
+git tag -a v1.0.0 -m "v1.0.0"
+git push --follow-tags
 ```
+
+Pushing the tag deploys that version to GitHub Pages.
 
 ### GitHub Pages
 
-1. Push the repository to GitHub.
-2. Go to **Settings → Pages** and select the branch and the root folder (`/`).
-3. The app will be available at `https://<user>.github.io/<repo>/`. All paths are relative, so it works from a subpath.
+The [Deploy to GitHub Pages](.github/workflows/pages.yml) workflow runs on every `vX.Y.Z` tag. It:
+
+1. fails if the tag does not match `VERSION` in `sw.js`, so a release can never ship with a stale offline cache;
+2. publishes only the app files (no `README.md` or `tools/`);
+3. deploys with the official Pages actions, pinned to commit SHAs and with the minimum permissions needed.
+
+To redeploy an existing version, run the workflow manually (**Actions → Deploy to GitHub Pages → Run workflow**) and choose the version tag in **Use workflow from**. Runs from a branch are rejected.
+
+One-time setup in the repository:
+
+1. **Settings → Pages → Build and deployment → Source:** select **GitHub Actions**.
+2. **Settings → Environments → github-pages → Deployment branches and tags:** add a **tag** rule `v*`. By default the environment only allows the default branch, so deployments from tags are rejected until this rule exists.
+
+The app will be available at `https://<user>.github.io/<repo>/`. All paths are relative, so it works from a subpath.
 
 ## Project structure
 
@@ -67,6 +80,7 @@ git push --tags
 ├── app.js                 # UI, file loading, export, trace log
 ├── sw.js                  # Service worker: offline cache and share target
 ├── manifest.webmanifest   # PWA manifest
+├── LICENSE                # MIT license (also published with the app)
 ├── js/
 │   ├── watermark.js       # Watermark rendering engine (canvas)
 │   ├── redact.js          # Redaction: cover, blur, pixelate
@@ -75,6 +89,8 @@ git push --tags
 ├── icons/                 # PWA icons and favicon
 ├── tools/
 │   └── make-icons.mjs     # Regenerates the PNG icons
+├── .github/workflows/
+│   └── pages.yml          # Deploys version tags to GitHub Pages
 └── vendor/
     └── pdfjs/             # pdf.js 4.10.38, used to read PDFs
 ```

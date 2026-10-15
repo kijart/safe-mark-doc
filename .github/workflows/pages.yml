@@ -1,0 +1,69 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+  # Manual (re)deploy: pick a version tag in "Use workflow from".
+  workflow_dispatch:
+
+# Least privilege by default; the deploy job asks for what it needs.
+permissions:
+  contents: read
+
+# One deployment at a time; never cancel one that is already running.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check version tag matches sw.js
+        run: |
+          if [ "$GITHUB_REF_TYPE" != tag ]; then
+            echo "::error::Deploy from a version tag (vX.Y.Z), not from branch '$GITHUB_REF_NAME'."
+            exit 1
+          fi
+          version=$(sed -n "s/^const VERSION = '\([^']*\)'.*/\1/p" sw.js)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error file=sw.js::Tag $GITHUB_REF_NAME does not match VERSION '$version' in sw.js."
+            exit 1
+          fi
+          echo "Deploying version $version"
+
+      - name: Assemble site
+        run: |
+          mkdir _site
+          cp -R index.html app.js styles.css sw.js manifest.webmanifest LICENSE js icons vendor _site/
+
+      - name: Configure Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
