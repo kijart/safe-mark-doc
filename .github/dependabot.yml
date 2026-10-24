@@ -1,0 +1,21 @@
+# Keeps pinned dependencies up to date with weekly pull requests.
+version: 2
+updates:
+  # Actions in .github/workflows (pinned to commit SHAs; Dependabot keeps them pinned).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci
+
+  # Base image in the Dockerfile.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: build

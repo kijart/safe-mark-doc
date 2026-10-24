@@ -171,9 +171,11 @@ One-time setup in the repository:
 │   └── nginx/             # Mirrors /etc/nginx/ in the image
 │       ├── conf.d/default.conf             # Server: caching, CSP, health check
 │       └── snippets/security-headers.conf  # Headers shared by every location
-├── .github/workflows/
-│   ├── pages.yml          # Deploys version tags to GitHub Pages
-│   └── publish-image.yml  # Publishes container images to GHCR and Docker Hub
+├── .github/
+│   ├── dependabot.yml     # Weekly updates for actions and the base image
+│   └── workflows/
+│       ├── pages.yml          # Deploys version tags to GitHub Pages
+│       └── publish-image.yml  # Publishes container images to GHCR and Docker Hub
 └── vendor/
     └── pdfjs/             # pdf.js 4.10.38, used to read PDFs
 ```
