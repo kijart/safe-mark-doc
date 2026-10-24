@@ -31,6 +31,36 @@ npx serve .
 
 Then open <http://localhost:8080>.
 
+### With Docker or Podman
+
+The repository includes a [`Dockerfile`](Dockerfile) and a [`compose.yaml`](compose.yaml) that serve the app with an unprivileged nginx. With Compose:
+
+```sh
+docker compose up -d # or: podman compose up -d
+```
+
+Then open <http://localhost:8080>.
+
+Without Compose:
+
+```sh
+docker build -t safe-mark-doc . # or: podman build -t safe-mark-doc .
+docker run -d --rm -p 127.0.0.1:8080:8080 --read-only \
+  --tmpfs /tmp --tmpfs /var/cache/nginx --cap-drop ALL \
+  --security-opt no-new-privileges safe-mark-doc
+```
+
+The container only serves the static files — documents are still processed in your browser and never reach it. It also:
+
+- runs as a non-root user, with a read-only filesystem and no Linux capabilities (Compose sets this up for you);
+- sends a Content Security Policy that only allows connections to the app's own origin, plus other security headers;
+- serves `index.html`, `sw.js` and `manifest.webmanifest` with `Cache-Control: no-cache`, so a new version is picked up right away;
+- exposes `/healthz` for the built-in health check.
+
+The port is bound to `127.0.0.1` because service workers — offline mode, installing the app and the share target — only work on `localhost` or over HTTPS. To use it from other devices, put an HTTPS reverse proxy in front of the container rather than publishing plain HTTP.
+
+> The CSP allows the small inline script in `index.html` by its hash. If you change that script, update the hash in `container/nginx/conf.d/default.conf` (the command is in the comment above it).
+
 ## Deployment
 
 The app is deployed to GitHub Pages automatically when a version is released (see below). It can also be hosted on any static host with HTTPS (Netlify, Cloudflare Pages, …): upload the app files listed in [Project structure](#project-structure).
@@ -89,6 +119,12 @@ The app will be available at `https://<user>.github.io/<repo>/`. All paths are r
 ├── icons/                 # PWA icons and favicon
 ├── tools/
 │   └── make-icons.mjs     # Regenerates the PNG icons
+├── Dockerfile             # Container image (Docker/Podman)
+├── compose.yaml           # Runs the container with Compose
+├── container/
+│   └── nginx/             # Mirrors /etc/nginx/ in the image
+│       ├── conf.d/default.conf             # Server: caching, CSP, health check
+│       └── snippets/security-headers.conf  # Headers shared by every location
 ├── .github/workflows/
 │   └── pages.yml          # Deploys version tags to GitHub Pages
 └── vendor/
