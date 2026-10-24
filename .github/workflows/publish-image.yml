@@ -1,0 +1,119 @@
+name: Publish container image
+
+# latest:       every push to master
+# X.Y.Z, X.Y, X: every X.Y.Z tag
+on:
+  push:
+    branches: [master]
+    tags: ['[0-9]+.[0-9]+.[0-9]+']
+
+# Least privilege by default; the publish job asks for what it needs.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  IMAGE_NAME: safe-mark-doc
+  PLATFORMS: linux/amd64,linux/arm64,linux/arm/v7
+
+jobs:
+  publish:
+    name: Build, test and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write # ghcr.io
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check version tag matches sw.js
+        if: github.ref_type == 'tag'
+        run: |
+          version=$(sed -n "s/^const VERSION = '\([^']*\)'.*/\1/p" sw.js)
+          if [ "$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error file=sw.js::Tag $GITHUB_REF_NAME does not match VERSION '$version' in sw.js."
+            exit 1
+          fi
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Build image for the smoke test
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          load: true
+          tags: ${{ env.IMAGE_NAME }}:test
+          cache-from: type=gha # the push step below writes the cache
+
+      - name: Smoke test
+        run: |
+          docker run -d --name smoke -p 127.0.0.1:8080:8080 --read-only \
+            --tmpfs /tmp --tmpfs /var/cache/nginx --cap-drop ALL \
+            --security-opt no-new-privileges "$IMAGE_NAME:test"
+          trap 'docker logs smoke; docker rm -f smoke >/dev/null' EXIT
+          for _ in $(seq 1 20); do
+            curl -fsS -o /dev/null http://127.0.0.1:8080/healthz && break
+            sleep 1
+          done
+          # The same command the image's HEALTHCHECK runs (its first run waits for the interval).
+          docker exec smoke wget -q -O /dev/null http://127.0.0.1:8080/healthz || { echo "::error::Health check failed"; exit 1; }
+          curl -fsS -o /dev/null http://127.0.0.1:8080/
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        env:
+          # Multi-arch images: put the annotations on the index too, so registries show them.
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
+        with:
+          images: |
+            docker.io/${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          flavor: latest=false # latest only follows master, never a version tag
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+          labels: |
+            org.opencontainers.image.title=Safe Mark Doc
+            org.opencontainers.image.description=Offline-first PWA that watermarks sensitive documents locally in the browser.
+          annotations: |
+            org.opencontainers.image.title=Safe Mark Doc
+            org.opencontainers.image.description=Offline-first PWA that watermarks sensitive documents locally in the browser.
+
+      - name: Build and push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: ${{ env.PLATFORMS }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

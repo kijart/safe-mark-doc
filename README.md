@@ -50,6 +50,14 @@ docker run -d --rm -p 127.0.0.1:8080:8080 --read-only \
   --security-opt no-new-privileges safe-mark-doc
 ```
 
+To skip the build, use a prebuilt image from GitHub Container Registry or Docker Hub (see [Container images](#container-images) for the available tags):
+
+```sh
+docker run -d --rm -p 127.0.0.1:8080:8080 --read-only \
+  --tmpfs /tmp --tmpfs /var/cache/nginx --cap-drop ALL \
+  --security-opt no-new-privileges ghcr.io/kijart/safe-mark-doc:latest
+```
+
 The container only serves the static files — documents are still processed in your browser and never reach it. It also:
 
 - runs as a non-root user, with a read-only filesystem and no Linux capabilities (Compose sets this up for you);
@@ -63,7 +71,7 @@ The port is bound to `127.0.0.1` because service workers — offline mode, insta
 
 ## Deployment
 
-The app is deployed to GitHub Pages automatically when a version is released (see below). It can also be hosted on any static host with HTTPS (Netlify, Cloudflare Pages, …): upload the app files listed in [Project structure](#project-structure).
+The app is deployed to GitHub Pages and published as a container image automatically when a version is released (see below). It can also be hosted on any static host with HTTPS (Netlify, Cloudflare Pages, …): upload the app files listed in [Project structure](#project-structure).
 
 > **Important:** after changing any file, bump `VERSION` in `sw.js` so installed clients pick up the new cache.
 
@@ -75,18 +83,18 @@ The app follows [Semantic Versioning](https://semver.org/). The current version 
 - **MINOR** — new features that keep compatibility.
 - **PATCH** — bug fixes and small adjustments.
 
-To release a version, update `VERSION`, commit, and tag the commit with the same version prefixed by `v`:
+To release a version, update `VERSION`, commit, and tag the commit with the same version:
 
 ```sh
-git tag -a v1.0.0 -m "v1.0.0"
+git tag -a 1.0.0 -m "1.0.0"
 git push --follow-tags
 ```
 
-Pushing the tag deploys that version to GitHub Pages.
+Pushing the tag deploys that version to GitHub Pages and publishes its [container images](#container-images).
 
 ### GitHub Pages
 
-The [Deploy to GitHub Pages](.github/workflows/pages.yml) workflow runs on every `vX.Y.Z` tag. It:
+The [Deploy to GitHub Pages](.github/workflows/pages.yml) workflow runs on every `X.Y.Z` tag. It:
 
 1. fails if the tag does not match `VERSION` in `sw.js`, so a release can never ship with a stale offline cache;
 2. publishes only the app files (no `README.md` or `tools/`);
@@ -97,9 +105,47 @@ To redeploy an existing version, run the workflow manually (**Actions → Deploy
 One-time setup in the repository:
 
 1. **Settings → Pages → Build and deployment → Source:** select **GitHub Actions**.
-2. **Settings → Environments → github-pages → Deployment branches and tags:** add a **tag** rule `v*`. By default the environment only allows the default branch, so deployments from tags are rejected until this rule exists.
+2. **Settings → Environments → github-pages → Deployment branches and tags:** add a **tag** rule `*.*.*`. By default the environment only allows the default branch, so deployments from tags are rejected until this rule exists.
 
 The app will be available at `https://<user>.github.io/<repo>/`. All paths are relative, so it works from a subpath.
+
+### Container images
+
+The [Publish container image](.github/workflows/publish-image.yml) workflow builds the image and pushes it to two registries:
+
+- GitHub Container Registry: [`ghcr.io/kijart/safe-mark-doc`](https://github.com/kijart/safe-mark-doc/pkgs/container/safe-mark-doc)
+- Docker Hub: [`docker.io/kijart/safe-mark-doc`](https://hub.docker.com/r/kijart/safe-mark-doc)
+
+Both registries get the same tags:
+
+| Tag      | Example  | Published on           | Points to                                          |
+| -------- | -------- | ---------------------- | -------------------------------------------------- |
+| `latest` | `latest` | every push to `master` | the latest `master`, which may not be released yet |
+| `X.Y.Z`  | `1.1.0`  | every `X.Y.Z` tag      | that exact version; never changes                  |
+| `X.Y`    | `1.1`    | every `X.Y.Z` tag      | the latest patch release of `X.Y`                  |
+| `X`      | `1`      | every `X.Y.Z` tag      | the latest minor or patch release of `X`           |
+
+For a stable deployment, use `X.Y.Z` or `X`; `latest` follows development.
+
+Every tag is a multi-architecture image, so Docker and Podman pull the right variant automatically:
+
+| Platform       | Typical hardware                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------- |
+| `linux/amd64`  | Most PCs and servers (Intel, AMD)                                                                 |
+| `linux/arm64`  | Apple Silicon (through Docker Desktop or Podman), Raspberry Pi 4/5 with a 64-bit OS, AWS Graviton |
+| `linux/arm/v7` | Raspberry Pi 2/3/4 with a 32-bit OS                                                               |
+
+On every run, the workflow:
+
+1. fails if a version tag does not match `VERSION` in `sw.js`, like the Pages workflow;
+2. builds the image and runs a smoke test (the container starts, passes its health check and serves the app) before pushing anything;
+3. pushes every platform with OCI labels and annotations (source, version, revision, license), using actions pinned to commit SHAs.
+
+One-time setup in the repository:
+
+1. Create a Docker Hub [access token](https://docs.docker.com/security/for-developers/access-tokens/) with **Read & Write** permission.
+2. **Settings → Secrets and variables → Actions:** add the variable `DOCKERHUB_USERNAME` (your Docker Hub user, on the **Variables** tab) and the secret `DOCKERHUB_TOKEN` (the token, on the **Secrets** tab).
+3. After the first run, open the package on GitHub (**Packages → safe-mark-doc → Package settings**) and change its visibility to **Public**, so the image can be pulled without logging in. GHCR uses the workflow's `GITHUB_TOKEN`, so it needs no secret.
 
 ## Project structure
 
@@ -126,7 +172,8 @@ The app will be available at `https://<user>.github.io/<repo>/`. All paths are r
 │       ├── conf.d/default.conf             # Server: caching, CSP, health check
 │       └── snippets/security-headers.conf  # Headers shared by every location
 ├── .github/workflows/
-│   └── pages.yml          # Deploys version tags to GitHub Pages
+│   ├── pages.yml          # Deploys version tags to GitHub Pages
+│   └── publish-image.yml  # Publishes container images to GHCR and Docker Hub
 └── vendor/
     └── pdfjs/             # pdf.js 4.10.38, used to read PDFs
 ```

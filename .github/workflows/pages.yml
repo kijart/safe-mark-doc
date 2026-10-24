@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+    tags: ['[0-9]+.[0-9]+.[0-9]+']
   # Manual (re)deploy: pick a version tag in "Use workflow from".
   workflow_dispatch:
 
@@ -29,11 +29,11 @@ jobs:
       - name: Check version tag matches sw.js
         run: |
           if [ "$GITHUB_REF_TYPE" != tag ]; then
-            echo "::error::Deploy from a version tag (vX.Y.Z), not from branch '$GITHUB_REF_NAME'."
+            echo "::error::Deploy from a version tag (X.Y.Z), not from branch '$GITHUB_REF_NAME'."
             exit 1
           fi
           version=$(sed -n "s/^const VERSION = '\([^']*\)'.*/\1/p" sw.js)
-          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+          if [ "$version" != "$GITHUB_REF_NAME" ]; then
             echo "::error file=sw.js::Tag $GITHUB_REF_NAME does not match VERSION '$version' in sw.js."
             exit 1
           fi
