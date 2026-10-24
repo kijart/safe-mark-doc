@@ -1,5 +1,12 @@
 # Safe Mark Doc
 
+[![GitHub Container Registry](https://img.shields.io/badge/ghcr-images-success.svg?logo=GitHub)](https://github.com/users/kijart/packages/container/package/safe-mark-doc)
+[![Docker Hub](https://img.shields.io/badge/dockerhub-images-success.svg?logo=Docker)](https://hub.docker.com/r/kijart/safe-mark-doc)
+[![Deploy to GitHub Pages](https://github.com/kijart/safe-mark-doc/actions/workflows/pages.yml/badge.svg)](https://github.com/kijart/safe-mark-doc/actions/workflows/pages.yml)
+[![Publish container image](https://github.com/kijart/safe-mark-doc/actions/workflows/publish-image.yml/badge.svg)](https://github.com/kijart/safe-mark-doc/actions/workflows/publish-image.yml)
+[![Dependabot Updates](https://github.com/kijart/safe-mark-doc/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/kijart/safe-mark-doc/actions/workflows/dependabot/dependabot-updates)
+[![License: MIT](https://img.shields.io/github/license/kijart/safe-mark-doc)](LICENSE)
+
 An offline-first Progressive Web App that adds tamper-resistant watermarks to sensitive documents — ID cards, passports, contracts, invoices — before you share them.
 
 Everything runs in your browser. There is no server, no upload and no tracking: your files never leave your device.
