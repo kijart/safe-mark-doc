@@ -411,3 +411,16 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
 .icon-btn[data-mode="auto"] .i-auto,
 .icon-btn[data-mode="light"] .i-light,
 .icon-btn[data-mode="dark"] .i-dark { display: block; }
+
+.site-footer {
+  padding: 4px 16px calc(20px + env(safe-area-inset-bottom));
+  text-align: center;
+  font-size: .85rem;
+}
+.site-footer a {
+  color: var(--muted);
+}
+.site-footer a:hover,
+.site-footer a:focus-visible {
+  color: var(--accent);
+}
