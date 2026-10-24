@@ -29,7 +29,7 @@ jobs:
       - name: Check version tag matches sw.js
         run: |
           if [ "$GITHUB_REF_TYPE" != tag ]; then
-            echo "::error::Deploy from a version tag (X.Y.Z), not from branch '$GITHUB_REF_NAME'."
+            echo "::error::Deploy from a version tag (x.y.z), not from branch '$GITHUB_REF_NAME'."
             exit 1
           fi
           version=$(sed -n "s/^const VERSION = '\([^']*\)'.*/\1/p" sw.js)

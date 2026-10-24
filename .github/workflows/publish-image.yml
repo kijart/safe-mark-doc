@@ -1,11 +1,27 @@
 name: Publish container image
 
-# latest:       every push to master
-# X.Y.Z, X.Y, X: every X.Y.Z tag
+# latest: every push to master that changes the image
+# x.y.Z, x.y, x: every x.y.z tag
 on:
   push:
     branches: [master]
     tags: ['[0-9]+.[0-9]+.[0-9]+']
+    # Only for master: GitHub does not evaluate path filters on tag pushes.
+    # Keep in sync with the files the Dockerfile copies.
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - container/**
+      - index.html
+      - app.js
+      - styles.css
+      - sw.js
+      - manifest.webmanifest
+      - LICENSE
+      - js/**
+      - icons/**
+      - vendor/**
+      - .github/workflows/publish-image.yml
 
 # Least privilege by default; the publish job asks for what it needs.
 permissions:
