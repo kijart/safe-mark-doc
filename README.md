@@ -11,6 +11,25 @@ An offline-first Progressive Web App that adds tamper-resistant watermarks to se
 
 Everything runs in your browser. There is no server, no upload and no tracking: your files never leave your device.
 
+## Table of contents
+
+- [Why](#why)
+- [Features](#features)
+- [Getting started](#getting-started)
+  - [With Docker or Podman](#with-docker-or-podman)
+- [Deployment](#deployment)
+  - [Versioning](#versioning)
+  - [GitHub Pages](#github-pages)
+  - [Container images](#container-images)
+- [Project structure](#project-structure)
+- [Development](#development)
+  - [Regenerating icons](#regenerating-icons)
+  - [Adding a language](#adding-a-language)
+- [Privacy](#privacy)
+- [Browser support](#browser-support)
+- [Third-party software](#third-party-software)
+- [License](#license)
+
 ## Why
 
 Sending a plain copy of your ID to a landlord, a hotel or an online service makes identity fraud easy. A visible watermark that states **who** the copy is for, **when** it was made and **what** it may be used for makes the copy far less useful to anyone else. Safe Mark Doc makes that quick and private.
