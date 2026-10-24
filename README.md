@@ -94,7 +94,7 @@ Pushing the tag deploys that version to GitHub Pages and publishes its [containe
 
 ### GitHub Pages
 
-The [Deploy to GitHub Pages](.github/workflows/pages.yml) workflow runs on every `X.Y.Z` tag. It:
+The [Deploy to GitHub Pages](.github/workflows/pages.yml) workflow runs on every `x.y.z` tag. It:
 
 1. fails if the tag does not match `VERSION` in `sw.js`, so a release can never ship with a stale offline cache;
 2. publishes only the app files (no `README.md` or `tools/`);
@@ -121,11 +121,11 @@ Both registries get the same tags:
 | Tag      | Example  | Published on           | Points to                                          |
 | -------- | -------- | ---------------------- | -------------------------------------------------- |
 | `latest` | `latest` | every push to `master` | the latest `master`, which may not be released yet |
-| `X.Y.Z`  | `1.1.0`  | every `X.Y.Z` tag      | that exact version; never changes                  |
-| `X.Y`    | `1.1`    | every `X.Y.Z` tag      | the latest patch release of `X.Y`                  |
-| `X`      | `1`      | every `X.Y.Z` tag      | the latest minor or patch release of `X`           |
+| `x.y.z`  | `1.1.0`  | every `x.y.z` tag      | that exact version; never changes                  |
+| `x.y`    | `1.1`    | every `x.y.z` tag      | the latest patch release of `x.y`                  |
+| `x`      | `1`      | every `x.y.z` tag      | the latest minor or patch release of `x`           |
 
-For a stable deployment, use `X.Y.Z` or `X`; `latest` follows development.
+For a stable deployment, use `x.y.z` or `x`; `latest` follows development. Pushes to `master` that only change files outside the image (README, `tools/`, other workflows) do not publish a new `latest`.
 
 Every tag is a multi-architecture image, so Docker and Podman pull the right variant automatically:
 
@@ -139,7 +139,7 @@ On every run, the workflow:
 
 1. fails if a version tag does not match `VERSION` in `sw.js`, like the Pages workflow;
 2. builds the image and runs a smoke test (the container starts, passes its health check and serves the app) before pushing anything;
-3. pushes every platform with OCI labels and annotations (source, version, revision, license), using actions pinned to commit SHAs.
+3. pushes every platform with OCI labels and annotations (source, version, revision, license), an SBOM and a build provenance attestation, using actions pinned to commit SHAs.
 
 One-time setup in the repository:
 
