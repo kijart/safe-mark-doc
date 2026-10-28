@@ -23,76 +23,76 @@
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
+  <header class="o-topbar">
+    <div class="m-brand">
       <img src="icons/favicon.svg" alt="" width="32" height="32">
       <div>
         <h1>Safe Mark Doc</h1>
         <p data-i18n="app.tagline">Marcas de agua para documentos que compartes</p>
       </div>
     </div>
-    <div class="topbar-actions">
-      <span id="net-status" class="pill" data-i18n-attr="title:top.netTitle"></span>
-      <label class="lang-select">
-        <span class="visually-hidden" data-i18n="top.language">Idioma</span>
+    <div class="o-topbar__actions">
+      <span id="net-status" class="a-pill" data-i18n-attr="title:top.netTitle"></span>
+      <label class="m-lang-select">
+        <span class="u-visually-hidden" data-i18n="top.language">Idioma</span>
         <select id="lang-select">
           <option value="es">ES</option>
           <option value="en">EN</option>
         </select>
       </label>
-      <button type="button" id="theme-btn" class="icon-btn">
-        <svg class="i-auto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>
-        <svg class="i-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        <svg class="i-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      <button type="button" id="theme-btn" class="a-icon-btn">
+        <svg class="a-icon-btn__icon--auto" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>
+        <svg class="a-icon-btn__icon--light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg class="a-icon-btn__icon--dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
       </button>
-      <button id="install-btn" class="btn ghost" hidden data-i18n="top.install">Instalar app</button>
+      <button id="install-btn" class="a-btn a-btn--ghost" hidden data-i18n="top.install">Instalar app</button>
     </div>
   </header>
 
-  <main class="layout">
-    <section class="panel controls" data-i18n-attr="aria-label:controls.aria">
-      <div class="privacy" data-i18n-html="privacy">
+  <main class="t-layout">
+    <section class="o-panel t-layout__controls" data-i18n-attr="aria-label:controls.aria">
+      <div class="a-privacy" data-i18n-html="privacy">
         <strong>100&nbsp;% local.</strong> Tus archivos nunca salen de este dispositivo: no hay servidor, ni cuentas, ni subidas.
       </div>
 
-      <label class="dropzone" id="dropzone">
+      <label class="m-dropzone" id="dropzone">
         <input id="file-input" type="file" accept="image/*,application/pdf" multiple>
-        <span class="dz-title" data-i18n="drop.title">Arrastra aquí tu documento</span>
-        <span class="dz-sub" data-i18n="drop.sub">o pulsa para elegir · JPG, PNG, WEBP o PDF · también puedes pegar (Ctrl+V)</span>
+        <span class="m-dropzone__title" data-i18n="drop.title">Arrastra aquí tu documento</span>
+        <span class="m-dropzone__sub" data-i18n="drop.sub">o pulsa para elegir · JPG, PNG, WEBP o PDF · también puedes pegar (Ctrl+V)</span>
       </label>
 
       <fieldset>
         <legend data-i18n="text.legend">Texto de la marca</legend>
-        <label class="field">
+        <label class="m-field">
           <span data-i18n="text.label">¿Para quién y para qué?</span>
           <input id="wm-text" type="text" maxlength="120" data-i18n-attr="placeholder:text.placeholder" placeholder="Ej.: Solo para Banco X · apertura de cuenta">
         </label>
-        <div class="chips" id="presets" data-i18n-attr="aria-label:presets.aria">
-          <button type="button" class="chip" data-preset="identity" data-i18n="preset.identity.label">Verificación de identidad</button>
-          <button type="button" class="chip" data-preset="rental" data-i18n="preset.rental.label">Alquiler</button>
-          <button type="button" class="chip" data-preset="bank" data-i18n="preset.bank.label">Banco</button>
-          <button type="button" class="chip" data-preset="job" data-i18n="preset.job.label">Empleo</button>
-          <button type="button" class="chip" data-preset="copy" data-i18n="preset.copy.label">Copia no válida</button>
+        <div class="m-chips" id="presets" data-i18n-attr="aria-label:presets.aria">
+          <button type="button" class="a-chip" data-preset="identity" data-i18n="preset.identity.label">Verificación de identidad</button>
+          <button type="button" class="a-chip" data-preset="rental" data-i18n="preset.rental.label">Alquiler</button>
+          <button type="button" class="a-chip" data-preset="bank" data-i18n="preset.bank.label">Banco</button>
+          <button type="button" class="a-chip" data-preset="job" data-i18n="preset.job.label">Empleo</button>
+          <button type="button" class="a-chip" data-preset="copy" data-i18n="preset.copy.label">Copia no válida</button>
         </div>
-        <div class="toggles">
-          <label class="check"><input id="opt-date" type="checkbox" checked> <span data-i18n="opt.date">Añadir fecha</span></label>
-          <label class="check"><input id="opt-trace" type="checkbox" checked> <span data-i18n="opt.trace">Código de rastreo</span></label>
+        <div class="m-toggles">
+          <label class="m-check"><input id="opt-date" type="checkbox" checked> <span data-i18n="opt.date">Añadir fecha</span></label>
+          <label class="m-check"><input id="opt-trace" type="checkbox" checked> <span data-i18n="opt.trace">Código de rastreo</span></label>
         </div>
-        <div class="trace-row" id="trace-row">
+        <div class="m-trace-row" id="trace-row">
           <code id="trace-code" data-i18n-attr="title:trace.title"></code>
-          <button type="button" class="btn small ghost" id="trace-regen" data-i18n="trace.regen">Nuevo código</button>
+          <button type="button" class="a-btn a-btn--small a-btn--ghost" id="trace-regen" data-i18n="trace.regen">Nuevo código</button>
         </div>
-        <p class="hint" data-i18n="trace.hint">Usa un código distinto para cada destinatario: si aparece una copia filtrada sabrás de dónde salió.</p>
+        <p class="a-hint" data-i18n="trace.hint">Usa un código distinto para cada destinatario: si aparece una copia filtrada sabrás de dónde salió.</p>
       </fieldset>
 
       <fieldset>
         <legend data-i18n="look.legend">Aspecto</legend>
-        <div class="row">
-          <label class="field color">
+        <div class="m-row">
+          <label class="m-field m-field--color">
             <span data-i18n="look.color">Color</span>
             <input id="wm-color" type="color" value="#c0262d">
           </label>
-          <div class="swatches" id="swatches">
+          <div class="m-swatches" id="swatches">
             <button type="button" style="--c:#c0262d" data-color="#c0262d" data-i18n-attr="aria-label:color.red"></button>
             <button type="button" style="--c:#1d4ed8" data-color="#1d4ed8" data-i18n-attr="aria-label:color.blue"></button>
             <button type="button" style="--c:#111827" data-color="#111827" data-i18n-attr="aria-label:color.black"></button>
@@ -100,19 +100,19 @@
             <button type="button" style="--c:#0f766e" data-color="#0f766e" data-i18n-attr="aria-label:color.green"></button>
           </div>
         </div>
-        <label class="field range">
+        <label class="m-field m-field--range">
           <span><span data-i18n="look.opacity">Opacidad</span> <output id="out-opacity"></output></span>
           <input id="wm-opacity" type="range" min="10" max="80" value="32">
         </label>
-        <label class="field range">
+        <label class="m-field m-field--range">
           <span><span data-i18n="look.size">Tamaño del texto</span> <output id="out-size"></output></span>
           <input id="wm-size" type="range" min="2" max="9" step="0.5" value="4">
         </label>
-        <label class="field range">
+        <label class="m-field m-field--range">
           <span><span data-i18n="look.density">Densidad</span> <output id="out-density"></output></span>
           <input id="wm-density" type="range" min="1" max="5" value="3">
         </label>
-        <label class="field range">
+        <label class="m-field m-field--range">
           <span><span data-i18n="look.angle">Ángulo</span> <output id="out-angle"></output></span>
           <input id="wm-angle" type="range" min="-60" max="60" value="-30">
         </label>
@@ -120,83 +120,83 @@
 
       <fieldset>
         <legend data-i18n="protect.legend">Protección</legend>
-        <label class="check block">
+        <label class="m-check m-check--block">
           <input id="opt-wave" type="checkbox" checked>
           <span data-i18n-html="protect.wave"></span>
         </label>
-        <label class="check block">
+        <label class="m-check m-check--block">
           <input id="opt-guilloche" type="checkbox" checked>
           <span data-i18n-html="protect.guilloche"></span>
         </label>
-        <label class="check block">
+        <label class="m-check m-check--block">
           <input id="opt-micro" type="checkbox" checked>
           <span data-i18n-html="protect.micro"></span>
         </label>
-        <p class="hint" data-i18n="protect.hint"></p>
+        <p class="a-hint" data-i18n="protect.hint"></p>
       </fieldset>
 
       <fieldset>
         <legend data-i18n="export.legend">Exportar</legend>
-        <div class="segmented" id="format" role="radiogroup" data-i18n-attr="aria-label:export.format">
+        <div class="m-segmented" id="format" role="radiogroup" data-i18n-attr="aria-label:export.format">
           <label><input type="radio" name="format" value="pdf"> PDF</label>
           <label><input type="radio" name="format" value="jpeg" checked> JPG</label>
           <label><input type="radio" name="format" value="png"> PNG</label>
         </div>
-        <div class="actions">
-          <button type="button" class="btn primary" id="download-btn" disabled data-i18n="export.download">Descargar</button>
-          <button type="button" class="btn" id="share-btn" disabled hidden data-i18n="export.share">Compartir…</button>
+        <div class="m-actions">
+          <button type="button" class="a-btn a-btn--primary" id="download-btn" disabled data-i18n="export.download">Descargar</button>
+          <button type="button" class="a-btn" id="share-btn" disabled hidden data-i18n="export.share">Compartir…</button>
         </div>
       </fieldset>
     </section>
 
-    <section class="panel preview" data-i18n-attr="aria-label:preview.aria">
-      <div class="preview-head">
+    <section class="o-panel t-layout__preview" data-i18n-attr="aria-label:preview.aria">
+      <div class="o-panel__head">
         <h2 data-i18n="preview.title">Vista previa</h2>
-        <div class="pager" id="pager" hidden>
-          <button type="button" class="btn small ghost" id="prev-page" data-i18n-attr="aria-label:preview.prev">‹</button>
+        <div class="m-pager" id="pager" hidden>
+          <button type="button" class="a-btn a-btn--small a-btn--ghost" id="prev-page" data-i18n-attr="aria-label:preview.prev">‹</button>
           <span id="page-label"></span>
-          <button type="button" class="btn small ghost" id="next-page" data-i18n-attr="aria-label:preview.next">›</button>
+          <button type="button" class="a-btn a-btn--small a-btn--ghost" id="next-page" data-i18n-attr="aria-label:preview.next">›</button>
         </div>
-        <button type="button" class="btn small ghost" id="clear-btn" hidden data-i18n="preview.clear">Quitar</button>
+        <button type="button" class="a-btn a-btn--small a-btn--ghost" id="clear-btn" hidden data-i18n="preview.clear">Quitar</button>
       </div>
-      <div class="redact-bar" id="redact-bar" hidden>
-        <span class="redact-label" data-i18n="redact.label">Ocultar datos</span>
-        <div class="segmented compact" id="redact-mode" role="radiogroup" data-i18n-attr="aria-label:redact.aria">
+      <div class="o-redact-bar" id="redact-bar" hidden>
+        <span class="o-redact-bar__label" data-i18n="redact.label">Ocultar datos</span>
+        <div class="m-segmented m-segmented--compact" id="redact-mode" role="radiogroup" data-i18n-attr="aria-label:redact.aria">
           <label data-i18n-attr="title:redact.none.title"><input type="radio" name="redact" value="none" checked> <span data-i18n="redact.none">Ver</span></label>
           <label data-i18n-attr="title:redact.box.title"><input type="radio" name="redact" value="box"> <span data-i18n="redact.box">Tapar</span></label>
           <label data-i18n-attr="title:redact.blur.title"><input type="radio" name="redact" value="blur"> <span data-i18n="redact.blur">Desenfocar</span></label>
           <label data-i18n-attr="title:redact.pixelate.title"><input type="radio" name="redact" value="pixelate"> <span data-i18n="redact.pixelate">Pixelar</span></label>
         </div>
-        <div class="redact-actions">
-          <button type="button" class="btn small ghost" id="redact-undo" disabled data-i18n="redact.undo">Deshacer</button>
-          <button type="button" class="btn small ghost danger" id="redact-delete" disabled data-i18n="redact.delete">Eliminar zona</button>
+        <div class="o-redact-bar__actions">
+          <button type="button" class="a-btn a-btn--small a-btn--ghost" id="redact-undo" disabled data-i18n="redact.undo">Deshacer</button>
+          <button type="button" class="a-btn a-btn--small a-btn--ghost a-btn--danger" id="redact-delete" disabled data-i18n="redact.delete">Eliminar zona</button>
         </div>
       </div>
-      <p class="hint redact-hint" id="redact-hint" hidden></p>
-      <div class="stage" id="stage">
-        <div class="empty" id="empty">
+      <p class="a-hint a-hint--redact" id="redact-hint" hidden></p>
+      <div class="o-stage" id="stage">
+        <div class="m-empty" id="empty">
           <svg viewBox="0 0 120 90" aria-hidden="true"><rect x="6" y="8" width="108" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="34" cy="38" r="12" fill="none" stroke="currentColor" stroke-width="3"/><path d="M20 66c4-9 24-9 28 0M60 32h40M60 44h32M60 56h36" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M8 70 112 20" stroke="currentColor" stroke-width="2" stroke-dasharray="4 5" opacity=".6"/></svg>
           <p data-i18n="preview.empty">Elige un documento para ver aquí cómo quedará.</p>
         </div>
         <canvas id="preview-canvas" hidden></canvas>
-        <div class="busy" id="busy" hidden><span class="spinner"></span><span id="busy-label" data-i18n="busy.default">Procesando…</span></div>
+        <div class="m-busy" id="busy" hidden><span class="a-spinner"></span><span id="busy-label" data-i18n="busy.default">Procesando…</span></div>
       </div>
     </section>
 
-    <section class="panel log" data-i18n-attr="aria-label:log.aria">
-      <div class="preview-head">
+    <section class="o-panel t-layout__log" data-i18n-attr="aria-label:log.aria">
+      <div class="o-panel__head">
         <h2 data-i18n="log.title">Registro de copias</h2>
-        <button type="button" class="btn small ghost" id="log-clear" hidden data-i18n="log.clear">Borrar registro</button>
+        <button type="button" class="a-btn a-btn--small a-btn--ghost" id="log-clear" hidden data-i18n="log.clear">Borrar registro</button>
       </div>
-      <p class="hint" data-i18n="log.hint">Se guarda solo en este navegador. Te ayuda a saber a quién diste cada código.</p>
-      <ul id="log-list" class="log-list"></ul>
+      <p class="a-hint" data-i18n="log.hint">Se guarda solo en este navegador. Te ayuda a saber a quién diste cada código.</p>
+      <ul id="log-list" class="o-log-list"></ul>
     </section>
   </main>
 
-  <footer class="site-footer">
+  <footer class="o-site-footer">
     <a href="https://github.com/kijart/safe-mark-doc" target="_blank" rel="noopener noreferrer" data-i18n="footer.source">Código fuente en GitHub</a>
   </footer>
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="toast" class="o-toast" role="status" aria-live="polite"></div>
 </body>
 </html>

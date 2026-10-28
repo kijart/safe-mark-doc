@@ -179,7 +179,7 @@ function syncLabels() {
   ui.traceCode.textContent = state.traceCode;
   ui.traceRow.hidden = !ui.optTrace.checked;
   for (const btn of ui.swatches.children) {
-    btn.classList.toggle('active', btn.dataset.color.toLowerCase() === ui.color.value.toLowerCase());
+    btn.classList.toggle('is-active', btn.dataset.color.toLowerCase() === ui.color.value.toLowerCase());
   }
 }
 
@@ -432,8 +432,8 @@ function syncRedactUi() {
   ui.redactDelete.disabled = state.selected < 0;
   const summary = count ? ` ${t(count === 1 ? 'redact.count.one' : 'redact.count.other', { count })}` : '';
   ui.redactHint.textContent = t(`redact.hint.${state.redactMode}`) + summary;
-  ui.canvas.classList.toggle('drawing', state.redactMode !== 'none');
-  ui.canvas.classList.toggle('can-select', state.redactMode === 'none' && count > 0);
+  ui.canvas.classList.toggle('is-drawing', state.redactMode !== 'none');
+  ui.canvas.classList.toggle('is-selectable', state.redactMode === 'none' && count > 0);
 }
 
 /** Pointer position as normalized (0..1) page coordinates. */
@@ -675,7 +675,7 @@ function renderLog() {
   ui.logClear.hidden = !log.length;
   if (!log.length) {
     const li = document.createElement('li');
-    li.className = 'empty-log';
+    li.className = 'o-log-list__empty';
     li.textContent = t('log.empty');
     ui.logList.append(li);
     return;
@@ -685,16 +685,16 @@ function renderLog() {
     const code = document.createElement('code');
     code.textContent = entry.code;
     const text = document.createElement('span');
-    text.className = 'text';
+    text.className = 'o-log-list__text';
     text.textContent = entry.purpose;
     text.title = entry.purpose;
     const meta = document.createElement('span');
-    meta.className = 'meta';
+    meta.className = 'o-log-list__meta';
     const when = new Date(entry.at).toLocaleString(getLocale(), { dateStyle: 'short', timeStyle: 'short' });
     meta.textContent = `${when} · ${entry.file}${entry.count > 1 ? ` (+${entry.count - 1})` : ''}`;
     const del = document.createElement('button');
     del.type = 'button';
-    del.className = 'btn small ghost del';
+    del.className = 'a-btn a-btn--small a-btn--ghost o-log-list__delete';
     del.textContent = '✕';
     del.setAttribute('aria-label', t('log.delete', { code: entry.code }));
     del.addEventListener('click', () => {
@@ -718,10 +718,10 @@ function setBusy(label) {
 let toastTimer;
 function toast(message, isError = false) {
   ui.toast.textContent = message;
-  ui.toast.classList.toggle('error', isError);
-  ui.toast.classList.add('show');
+  ui.toast.classList.toggle('is-error', isError);
+  ui.toast.classList.add('is-visible');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => ui.toast.classList.remove('show'), isError ? 5000 : 2800);
+  toastTimer = setTimeout(() => ui.toast.classList.remove('is-visible'), isError ? 5000 : 2800);
 }
 
 function setFormat(value) {
@@ -732,7 +732,7 @@ function setFormat(value) {
 function updateNetStatus() {
   const online = navigator.onLine;
   ui.netStatus.textContent = t(online ? 'top.online' : 'top.offline');
-  ui.netStatus.classList.toggle('offline', !online);
+  ui.netStatus.classList.toggle('is-offline', !online);
 }
 
 // ---------- Share target (files shared to the installed app) ----------
@@ -818,17 +818,17 @@ function bindEvents() {
   for (const type of ['dragenter', 'dragover']) {
     ui.dropzone.addEventListener(type, (e) => {
       e.preventDefault();
-      ui.dropzone.classList.add('over');
+      ui.dropzone.classList.add('is-over');
     });
   }
   for (const type of ['dragleave', 'drop']) {
-    ui.dropzone.addEventListener(type, () => ui.dropzone.classList.remove('over'));
+    ui.dropzone.addEventListener(type, () => ui.dropzone.classList.remove('is-over'));
   }
   // Accept drops anywhere on the page.
   window.addEventListener('dragover', (e) => e.preventDefault());
   window.addEventListener('drop', (e) => {
     e.preventDefault();
-    ui.dropzone.classList.remove('over');
+    ui.dropzone.classList.remove('is-over');
     if (e.dataTransfer?.files.length) openFiles(e.dataTransfer.files);
   });
 

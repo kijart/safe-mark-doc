@@ -182,7 +182,7 @@ One-time setup in the repository:
 │   ├── sw.js              # Service worker: offline cache and share target
 │   ├── manifest.webmanifest  # PWA manifest
 │   ├── css/
-│   │   └── styles.css     # Styles (light/dark themes)
+│   │   └── styles.css     # Styles by Atomic Design level (light/dark themes)
 │   ├── js/
 │   │   ├── app.js         # UI, file loading, export, trace log
 │   │   ├── watermark.js   # Watermark rendering engine (canvas)
