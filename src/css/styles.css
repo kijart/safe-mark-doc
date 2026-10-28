@@ -138,7 +138,8 @@ legend+* {
   clear: both;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="password"] {
   font: inherit;
   color: inherit;
   background: var(--surface-2);
@@ -148,7 +149,8 @@ input[type="text"] {
   width: 100%;
 }
 
-input[type="text"]:focus {
+input[type="text"]:focus,
+input[type="password"]:focus {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
@@ -788,6 +790,33 @@ input[type="radio"] {
   background: var(--accent-soft);
   border-bottom: 1px solid var(--border);
   font-size: .9rem;
+}
+
+/* Dialog */
+.o-dialog {
+  width: min(420px, calc(100vw - 32px));
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.o-dialog::backdrop {
+  background: rgb(0 0 0 / 40%);
+}
+
+.o-dialog__message {
+  margin: 8px 0 12px;
+  color: var(--muted);
+  font-size: .9rem;
+  overflow-wrap: anywhere;
+}
+
+.o-dialog__actions {
+  justify-content: flex-end;
+  margin-top: 16px;
 }
 
 /* Toast */

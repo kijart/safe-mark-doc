@@ -56,6 +56,11 @@ const ui = {
   netStatus: $('net-status'),
   installBtn: $('install-btn'),
   toast: $('toast'),
+  passwordDialog: $('password-dialog'),
+  passwordForm: $('password-form'),
+  passwordMessage: $('password-message'),
+  passwordInput: $('password-input'),
+  passwordCancel: $('password-cancel'),
   updateBar: $('update-bar'),
   updateBtn: $('update-btn'),
   redactBar: $('redact-bar'),
@@ -267,13 +272,25 @@ function loadPdfJs() {
 async function loadPdf(file, docs) {
   const pdfjs = await loadPdfJs();
   const task = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false });
-  task.onPassword = (updatePassword, reason) => {
+  let cancelled = false;
+  task.onPassword = async (updatePassword, reason) => {
     const retry = reason === pdfjs.PasswordResponses.INCORRECT_PASSWORD;
-    const pw = prompt(retry ? t('load.passwordRetry') : t('load.passwordPrompt', { name: file.name }));
-    if (pw === null) task.destroy();
-    else updatePassword(pw);
+    const pw = await askPassword(retry ? t('load.passwordRetry') : t('load.passwordPrompt', { name: file.name }));
+    if (pw === null) {
+      cancelled = true;
+      task.destroy();
+    } else {
+      updatePassword(pw);
+    }
   };
-  const doc = await task.promise;
+  let doc;
+  try {
+    doc = await task.promise;
+  } catch (err) {
+    // Cancelling the password is the user's choice, not an error: openFiles stays quiet.
+    if (cancelled) throw new DOMException('Password cancelled', 'AbortError');
+    throw err;
+  }
   docs.push(doc);
   const pages = [];
   for (let n = 1; n <= doc.numPages; n++) {
@@ -327,6 +344,35 @@ function destroyDocs(docs) {
   }
 }
 
+/** Asks for a PDF password in a modal dialog. Resolves to the password, or null if cancelled. */
+function askPassword(message) {
+  const { passwordDialog: dialog, passwordForm: form, passwordInput: input, passwordCancel: cancel } = ui;
+  ui.passwordMessage.textContent = message;
+  input.value = '';
+  return new Promise((resolve) => {
+    const finish = (value) => {
+      form.removeEventListener('submit', onSubmit);
+      cancel.removeEventListener('click', onCancel);
+      dialog.removeEventListener('close', onClose);
+      if (dialog.open) dialog.close();
+      input.value = '';
+      resolve(value);
+    };
+    const onSubmit = (e) => {
+      e.preventDefault();
+      finish(input.value);
+    };
+    const onCancel = () => finish(null);
+    // Escape closes the dialog without a submit.
+    const onClose = () => finish(null);
+    form.addEventListener('submit', onSubmit);
+    cancel.addEventListener('click', onCancel);
+    dialog.addEventListener('close', onClose);
+    dialog.showModal();
+    input.focus();
+  });
+}
+
 function isPdf(file) {
   return file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
 }
@@ -363,6 +409,7 @@ async function openFiles(fileList) {
     renderPreview();
   } catch (err) {
     destroyDocs(docs);
+    if (err?.name === 'AbortError') return;
     console.error(err);
     const msg = err?.name === 'PasswordException' ? t('load.passwordFailed') : t('load.failed', { error: err.message || err });
     toast(msg, true);

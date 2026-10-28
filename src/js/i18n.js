@@ -117,6 +117,10 @@ const MESSAGES = {
     'load.failed': 'No se pudo abrir el archivo: {error}',
     'load.passwordPrompt': '«{name}» está protegido. Introduce la contraseña:',
     'load.passwordRetry': 'Contraseña incorrecta. Inténtalo de nuevo:',
+    'password.title': 'PDF protegido',
+    'password.label': 'Contraseña',
+    'password.cancel': 'Cancelar',
+    'password.open': 'Abrir',
 
     'export.renderingPage': 'Generando página {n} de {total}…',
     'export.renderingImage': 'Generando imagen {n} de {total}…',
@@ -248,6 +252,10 @@ const MESSAGES = {
     'load.failed': 'Could not open the file: {error}',
     'load.passwordPrompt': '“{name}” is password-protected. Enter the password:',
     'load.passwordRetry': 'Wrong password. Try again:',
+    'password.title': 'Protected PDF',
+    'password.label': 'Password',
+    'password.cancel': 'Cancel',
+    'password.open': 'Open',
 
     'export.renderingPage': 'Generating page {n} of {total}…',
     'export.renderingImage': 'Generating image {n} of {total}…',
