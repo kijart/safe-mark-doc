@@ -67,8 +67,13 @@ const ui = {
 };
 
 const state = {
-  /** @type {Array<{canvas: HTMLCanvasElement, ptWidth: number, ptHeight: number, regions: Array<{x: number, y: number, w: number, h: number, mode: string}>}>} */
+  /**
+   * Pages are rasterized on demand (see `rasterize`): a page keeps only its source and sizes.
+   * @type {Array<{pdf?: object, pageNumber?: number, scale?: number, file?: File, pxWidth: number, pxHeight: number, ptWidth: number, ptHeight: number, regions: Array<{x: number, y: number, w: number, h: number, mode: string}>}>}
+   */
   pages: [],
+  /** Open pdf.js documents backing `pages`; destroyed when the document is replaced or cleared. */
+  docs: [],
   sourceName: '',
   sourceIsPdf: false,
   pageIndex: 0,
@@ -185,14 +190,19 @@ function syncLabels() {
 
 // ---------- Loading documents ----------
 
-function whiteCanvas(width, height) {
-  const canvas = document.createElement('canvas');
+/** Resizes `canvas`, paints it white and returns its context. */
+function whiteCanvas(canvas, width, height) {
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, width, height);
-  return canvas;
+  return ctx;
+}
+
+/** Frees a canvas' bitmap right away instead of waiting for garbage collection. */
+function releaseCanvas(canvas) {
+  canvas.width = canvas.height = 0;
 }
 
 function fitScale(width, height) {
@@ -223,15 +233,20 @@ async function decodeImage(file) {
   }
 }
 
+/**
+ * Reads the image size only; the pixels are decoded again when the page is rasterized.
+ * The compressed bytes are copied so later renders don't depend on the file staying on disk.
+ */
 async function loadImage(file) {
-  const img = await decodeImage(file);
+  const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+  const img = await decodeImage(blob);
   const iw = img.naturalWidth ?? img.width;
   const ih = img.naturalHeight ?? img.height;
-  const s = fitScale(iw, ih);
-  const canvas = whiteCanvas(Math.round(iw * s), Math.round(ih * s));
-  canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
   img.close?.();
-  return { canvas, ...fitToA4(canvas.width, canvas.height) };
+  const s = fitScale(iw, ih);
+  const pxWidth = Math.round(iw * s);
+  const pxHeight = Math.round(ih * s);
+  return { file: blob, pxWidth, pxHeight, ...fitToA4(pxWidth, pxHeight) };
 }
 
 let pdfjsPromise;
@@ -243,7 +258,11 @@ function loadPdfJs() {
   return pdfjsPromise;
 }
 
-async function loadPdf(file) {
+/**
+ * Opens a PDF and reads each page's size without rasterizing it. The document stays open
+ * (pushed to `docs`, which the caller owns) so pages can be rendered on demand.
+ */
+async function loadPdf(file, docs) {
   const pdfjs = await loadPdfJs();
   const task = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false });
   task.onPassword = (updatePassword, reason) => {
@@ -253,24 +272,57 @@ async function loadPdf(file) {
     else updatePassword(pw);
   };
   const doc = await task.promise;
+  docs.push(doc);
   const pages = [];
-  try {
-    for (let n = 1; n <= doc.numPages; n++) {
-      setBusy(t('load.readingPage', { n, total: doc.numPages }));
-      const page = await doc.getPage(n);
-      const unit = page.getViewport({ scale: 1 });
-      let scale = Math.min(3, Math.max(1, PDF_TARGET_WIDTH / unit.width));
-      scale *= fitScale(unit.width * scale, unit.height * scale);
-      const viewport = page.getViewport({ scale });
-      const canvas = whiteCanvas(Math.round(viewport.width), Math.round(viewport.height));
-      await page.render({ canvasContext: canvas.getContext('2d'), viewport, background: '#ffffff' }).promise;
-      pages.push({ canvas, ptWidth: unit.width, ptHeight: unit.height });
-      page.cleanup();
-    }
-  } finally {
-    await doc.destroy();
+  for (let n = 1; n <= doc.numPages; n++) {
+    setBusy(t('load.readingPage', { n, total: doc.numPages }));
+    const page = await doc.getPage(n);
+    const unit = page.getViewport({ scale: 1 });
+    let scale = Math.min(3, Math.max(1, PDF_TARGET_WIDTH / unit.width));
+    scale *= fitScale(unit.width * scale, unit.height * scale);
+    const viewport = page.getViewport({ scale });
+    pages.push({
+      pdf: doc,
+      pageNumber: n,
+      scale,
+      pxWidth: Math.round(viewport.width),
+      pxHeight: Math.round(viewport.height),
+      ptWidth: unit.width,
+      ptHeight: unit.height,
+    });
+    page.cleanup();
   }
   return pages;
+}
+
+/** Draws a page at full resolution onto `target`, resizing it to the page. */
+async function rasterize(page, target) {
+  const ctx = whiteCanvas(target, page.pxWidth, page.pxHeight);
+  if (page.pdf) {
+    const pdfPage = await page.pdf.getPage(page.pageNumber);
+    try {
+      const viewport = pdfPage.getViewport({ scale: page.scale });
+      await pdfPage.render({ canvasContext: ctx, viewport, background: '#ffffff' }).promise;
+    } finally {
+      pdfPage.cleanup();
+    }
+  } else {
+    const img = await decodeImage(page.file);
+    ctx.drawImage(img, 0, 0, target.width, target.height);
+    img.close?.();
+  }
+  return target;
+}
+
+// PDFs an export is still reading: closing them waits until the export ends.
+let exportDocs = [];
+let deferredDocs = [];
+
+function destroyDocs(docs) {
+  for (const doc of docs) {
+    if (exportDocs.includes(doc)) deferredDocs.push(doc);
+    else doc.destroy();
+  }
 }
 
 function isPdf(file) {
@@ -284,13 +336,16 @@ async function openFiles(fileList) {
     return;
   }
   setBusy(t('load.loading'));
+  const docs = [];
   try {
     const pages = [];
     for (const file of files) {
-      pages.push(...(isPdf(file) ? await loadPdf(file) : [await loadImage(file)]));
+      pages.push(...(isPdf(file) ? await loadPdf(file, docs) : [await loadImage(file)]));
     }
     if (!pages.length) throw new Error(t('load.noPages'));
     for (const page of pages) page.regions = [];
+    closeDocument();
+    state.docs = docs;
     state.pages = pages;
     state.pageIndex = 0;
     state.selected = -1;
@@ -301,12 +356,11 @@ async function openFiles(fileList) {
     state.traceCode = newTraceCode();
     setFormat(state.sourceIsPdf || pages.length > 1 ? 'pdf' : 'jpeg');
     syncLabels();
+    // On narrow screens the preview sits below the controls: bring it into view once drawn.
+    scrollToPreview = matchMedia('(max-width: 919px)').matches;
     renderPreview();
-    // On narrow screens the preview sits below the controls: bring it into view.
-    if (matchMedia('(max-width: 919px)').matches) {
-      requestAnimationFrame(() => ui.canvas.scrollIntoView({ behavior: 'smooth', block: 'center' }));
-    }
   } catch (err) {
+    destroyDocs(docs);
     console.error(err);
     const msg = err?.name === 'PasswordException' ? t('load.passwordFailed') : t('load.failed', { error: err.message || err });
     toast(msg, true);
@@ -315,8 +369,20 @@ async function openFiles(fileList) {
   }
 }
 
+/** Closes the open PDFs and frees the preview bitmaps of the current document. */
+function closeDocument() {
+  dropPreviewRaster();
+  destroyDocs(state.docs);
+  state.docs = [];
+  // Also keeps the previous document from showing while the next one renders.
+  previewPage = null;
+  previewCache.width = previewCache.height = 0;
+  ui.canvas.width = ui.canvas.height = 0;
+}
+
 /** Drops the loaded document and returns the preview to its initial empty state. Watermark settings are kept. */
 function resetDocument() {
+  closeDocument();
   state.pages = [];
   state.pageIndex = 0;
   state.sourceName = '';
@@ -326,9 +392,6 @@ function resetDocument() {
   state.redactMode = 'none';
   ui.redactMode.querySelector('input[value="none"]').checked = true;
   setFormat('jpeg');
-  // Release the large bitmaps.
-  previewCache.width = previewCache.height = 0;
-  ui.canvas.width = ui.canvas.height = 0;
   ui.fileInput.value = '';
   syncLabels();
   renderPreview();
@@ -336,18 +399,46 @@ function resetDocument() {
 
 // ---------- Rendering ----------
 
-function renderPage(page, target, options) {
-  target.width = page.canvas.width;
-  target.height = page.canvas.height;
-  const ctx = target.getContext('2d');
-  ctx.drawImage(page.canvas, 0, 0);
-  applyRedactions(ctx, target.width, target.height, page.regions);
-  drawWatermark(ctx, target.width, target.height, options);
-  return target;
+/** Applies the page's redactions and then the watermark, in place. */
+function decoratePage(canvas, page, options) {
+  const ctx = canvas.getContext('2d');
+  applyRedactions(ctx, canvas.width, canvas.height, page.regions);
+  drawWatermark(ctx, canvas.width, canvas.height, options);
 }
 
 // The fully rendered page is cached so drag overlays don't redraw the watermark each frame.
 const previewCache = document.createElement('canvas');
+
+// Page drawn in `previewCache`; differs from `currentPage()` while the next page renders.
+let previewPage = null;
+let scrollToPreview = false;
+
+// Raster of the page shown in the preview, so option changes don't re-render the PDF.
+// Only one page is kept: memory stays flat whatever the page count.
+let previewRaster = { page: null, promise: null, busyTimer: 0 };
+
+function dropPreviewRaster() {
+  clearTimeout(previewRaster.busyTimer);
+  previewRaster.promise?.then(releaseCanvas, () => {});
+  previewRaster = { page: null, promise: null, busyTimer: 0 };
+  setBusy(null, 'preview');
+}
+
+function previewRasterFor(page) {
+  if (previewRaster.page !== page) {
+    dropPreviewRaster();
+    const promise = rasterize(page, document.createElement('canvas'));
+    // Only show the spinner for slow pages, so quick page turns don't flicker.
+    const busyTimer = setTimeout(() => setBusy(t('preview.rendering'), 'preview'), 150);
+    previewRaster = { page, promise, busyTimer };
+    promise.finally(() => {
+      if (previewRaster.promise !== promise) return;
+      clearTimeout(busyTimer);
+      setBusy(null, 'preview');
+    }).catch(() => {});
+  }
+  return previewRaster.promise;
+}
 
 let renderQueued = false;
 function renderPreview() {
@@ -355,21 +446,48 @@ function renderPreview() {
   renderQueued = true;
   requestAnimationFrame(() => {
     renderQueued = false;
-    const hasDoc = state.pages.length > 0;
-    ui.empty.hidden = hasDoc;
-    ui.canvas.hidden = !hasDoc;
-    ui.downloadBtn.disabled = !hasDoc;
-    ui.shareBtn.disabled = !hasDoc;
-    ui.clearBtn.hidden = !hasDoc;
-    ui.pager.hidden = state.pages.length < 2;
-    syncRedactUi();
-    if (!hasDoc) return;
-    ui.pageLabel.textContent = `${state.pageIndex + 1} / ${state.pages.length}`;
-    ui.prevPage.disabled = state.pageIndex === 0;
-    ui.nextPage.disabled = state.pageIndex === state.pages.length - 1;
-    renderPage(currentPage(), previewCache, getOptions());
-    drawOverlay();
+    updatePreview();
   });
+}
+
+async function updatePreview() {
+  const hasDoc = state.pages.length > 0;
+  ui.empty.hidden = hasDoc;
+  ui.canvas.hidden = !hasDoc;
+  ui.downloadBtn.disabled = !hasDoc;
+  ui.shareBtn.disabled = !hasDoc;
+  ui.clearBtn.hidden = !hasDoc;
+  ui.pager.hidden = state.pages.length < 2;
+  syncRedactUi();
+  if (!hasDoc) return;
+  ui.pageLabel.textContent = `${state.pageIndex + 1} / ${state.pages.length}`;
+  ui.prevPage.disabled = state.pageIndex === 0;
+  ui.nextPage.disabled = state.pageIndex === state.pages.length - 1;
+
+  const page = currentPage();
+  const promise = previewRasterFor(page);
+  let raster;
+  try {
+    raster = await promise;
+  } catch (err) {
+    if (previewRaster.promise !== promise) return; // superseded or closed: not an error
+    dropPreviewRaster(); // let the next render retry
+    console.error(err);
+    toast(t('preview.failed', { error: err.message || err }), true);
+    return;
+  }
+  // Another page or document was requested meanwhile; its own render will draw it.
+  if (previewRaster.promise !== promise) return;
+  previewCache.width = raster.width;
+  previewCache.height = raster.height;
+  previewCache.getContext('2d').drawImage(raster, 0, 0);
+  decoratePage(previewCache, page, getOptions());
+  previewPage = page;
+  drawOverlay();
+  if (scrollToPreview) {
+    scrollToPreview = false;
+    ui.canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 }
 
 function currentPage() {
@@ -379,7 +497,8 @@ function currentPage() {
 /** Copies the cached render to the visible canvas and draws editing aids (never exported). */
 function drawOverlay() {
   const page = currentPage();
-  if (!page) return;
+  // Nothing drawn yet for this page (it may still be rendering).
+  if (!page || page !== previewPage) return;
   if (ui.canvas.width !== previewCache.width || ui.canvas.height !== previewCache.height) {
     ui.canvas.width = previewCache.width;
     ui.canvas.height = previewCache.height;
@@ -480,7 +599,8 @@ function bindRedactEvents() {
 
   ui.canvas.addEventListener('pointerdown', (e) => {
     const page = currentPage();
-    if (!page || e.button > 0) return;
+    // Ignore input while the canvas still shows the previous page.
+    if (!page || page !== previewPage || e.button > 0) return;
     const p = pointerToNormalized(e);
     if (state.redactMode === 'none') {
       selectRegion(hitTest(page.regions, p.x, p.y));
@@ -572,30 +692,43 @@ async function exportFiles() {
   const options = getOptions();
   const suffix = options.code ? `${t('file.suffix')}-${options.code}` : t('file.suffix');
   const base = `${slug(state.sourceName) || t('file.document')}-${suffix}`;
+  const pages = state.pages;
+  exportDocs = state.docs;
+  // One canvas reused for every page, so only one full-size page is in memory at a time.
   const work = document.createElement('canvas');
+  const renderPage = async (page) => {
+    await rasterize(page, work);
+    decoratePage(work, page, options);
+  };
 
-  if (format === 'pdf') {
-    const pdfPages = [];
-    for (const [i, page] of state.pages.entries()) {
-      setBusy(t('export.renderingPage', { n: i + 1, total: state.pages.length }));
-      renderPage(page, work, options);
-      const jpeg = new Uint8Array(await (await canvasToBlob(work, 'image/jpeg', 0.9)).arrayBuffer());
-      pdfPages.push({ jpeg, pxWidth: work.width, pxHeight: work.height, ptWidth: page.ptWidth, ptHeight: page.ptHeight });
+  try {
+    if (format === 'pdf') {
+      const pdfPages = [];
+      for (const [i, page] of pages.entries()) {
+        setBusy(t('export.renderingPage', { n: i + 1, total: pages.length }));
+        await renderPage(page);
+        const jpeg = new Uint8Array(await (await canvasToBlob(work, 'image/jpeg', 0.9)).arrayBuffer());
+        pdfPages.push({ jpeg, pxWidth: work.width, pxHeight: work.height, ptWidth: page.ptWidth, ptHeight: page.ptHeight });
+      }
+      return [new File([buildPdf(pdfPages)], `${base}.pdf`, { type: 'application/pdf' })];
     }
-    return [new File([buildPdf(pdfPages)], `${base}.pdf`, { type: 'application/pdf' })];
-  }
 
-  const type = format === 'png' ? 'image/png' : 'image/jpeg';
-  const ext = format === 'png' ? 'png' : 'jpg';
-  const files = [];
-  for (const [i, page] of state.pages.entries()) {
-    setBusy(t('export.renderingImage', { n: i + 1, total: state.pages.length }));
-    renderPage(page, work, options);
-    const blob = await canvasToBlob(work, type, 0.9);
-    const name = state.pages.length > 1 ? `${base}-p${i + 1}.${ext}` : `${base}.${ext}`;
-    files.push(new File([blob], name, { type }));
+    const type = format === 'png' ? 'image/png' : 'image/jpeg';
+    const ext = format === 'png' ? 'png' : 'jpg';
+    const files = [];
+    for (const [i, page] of pages.entries()) {
+      setBusy(t('export.renderingImage', { n: i + 1, total: pages.length }));
+      await renderPage(page);
+      const blob = await canvasToBlob(work, type, 0.9);
+      const name = pages.length > 1 ? `${base}-p${i + 1}.${ext}` : `${base}.${ext}`;
+      files.push(new File([blob], name, { type }));
+    }
+    return files;
+  } finally {
+    releaseCanvas(work);
+    exportDocs = [];
+    destroyDocs(deferredDocs.splice(0));
   }
-  return files;
 }
 
 function downloadFile(file) {
@@ -710,9 +843,14 @@ function renderLog() {
 
 // ---------- UI helpers ----------
 
-function setBusy(label) {
-  if (label) ui.busyLabel.textContent = label;
-  ui.busy.hidden = !label;
+// Labels by owner, so the preview's spinner and a load/export don't clear each other.
+const busyLabels = new Map();
+function setBusy(label, owner = 'task') {
+  if (label) busyLabels.set(owner, label);
+  else busyLabels.delete(owner);
+  const current = busyLabels.get('task') ?? busyLabels.get('preview');
+  if (current) ui.busyLabel.textContent = current;
+  ui.busy.hidden = !current;
 }
 
 let toastTimer;
