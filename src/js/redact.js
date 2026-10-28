@@ -4,6 +4,10 @@
 export const REDACT_MODES = ['box', 'blur', 'pixelate'];
 
 const BOX_COLOR = '#111111';
+const MIN_BLOCK = 8;
+// Rough height of a line of body text, as a share of the page's short side
+// (~44 px on a 2200 px wide PDF render, ~12 px on an 800×600 screenshot).
+const LINE_FRACTION = 0.02;
 
 /** Converts a normalized region to integer pixel bounds clamped to the canvas. */
 export function toPixels(region, width, height) {
@@ -15,13 +19,25 @@ export function toPixels(region, width, height) {
 }
 
 /**
+ * Side of the square blocks a region is resampled to. Across the region's short side it keeps
+ * at most one sample per line of text (and at most 5, or 6 for blur), so a strip over a single
+ * line becomes one row of blocks each wider than a glyph: too little detail for tools like Depix
+ * to match against a font.
+ */
+export function blockSize(w, h, pageWidth, pageHeight, smooth) {
+  const shortSide = Math.min(w, h);
+  const line = Math.max(MIN_BLOCK, LINE_FRACTION * Math.min(pageWidth, pageHeight));
+  const samples = Math.min(smooth ? 6 : 5, Math.max(1, Math.floor(shortSide / line)));
+  return Math.max(MIN_BLOCK, shortSide / samples);
+}
+
+/**
  * Resamples the area through a tiny canvas. Downscaling discards the detail for good,
  * so the result cannot be "un-blurred" the way a light Gaussian blur sometimes can.
  */
 function resample(ctx, { x, y, w, h }, smooth) {
-  const shortSide = Math.min(w, h);
   // Both keep only a handful of samples per short side; blur then smooths them out.
-  const block = smooth ? Math.max(8, shortSide / 6) : Math.max(8, shortSide / 5);
+  const block = blockSize(w, h, ctx.canvas.width, ctx.canvas.height, smooth);
   const sw = Math.max(1, Math.round(w / block));
   const sh = Math.max(1, Math.round(h / block));
 
