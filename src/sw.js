@@ -26,9 +26,15 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(APP_CACHE)
-      .then((cache) => cache.addAll(ASSETS.map((path) => new Request(path, { cache: 'reload' }))))
-      .then(() => self.skipWaiting()),
+      .then((cache) => cache.addAll(ASSETS.map((path) => new Request(path, { cache: 'reload' })))),
   );
+  // No skipWaiting here: an update waits until the page asks for it (see the message handler),
+  // so an open page never mixes files from two versions.
+});
+
+// The page sends this when the user accepts the update.
+self.addEventListener('message', (event) => {
+  if (event.data === 'skip-waiting') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -52,27 +58,23 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   if (request.mode === 'navigate') {
-    event.respondWith(staleWhileRevalidate(new Request(new URL('index.html', self.registration.scope)), event));
+    event.respondWith(cacheFirst(new Request(new URL('index.html', self.registration.scope))));
     return;
   }
-  event.respondWith(staleWhileRevalidate(request, event));
+  event.respondWith(cacheFirst(request));
 });
 
-// Serve from cache immediately; refresh the cached copy in the background when online.
-async function staleWhileRevalidate(request, event) {
-  const cache = await caches.open(APP_CACHE);
-  const cached = await cache.match(request, { ignoreSearch: true });
-  const network = fetch(request)
-    .then((response) => {
-      if (response.ok) cache.put(request, response.clone());
-      return response;
-    })
-    .catch(() => undefined);
-  if (cached) {
-    event.waitUntil(network);
-    return cached;
+// Serve from this version's cache only, so every file of a page comes from the same release.
+// New versions arrive as a whole through install, never file by file. Files outside the
+// precache (e.g. LICENSE) go to the network and are not cached.
+async function cacheFirst(request) {
+  const cached = await caches.match(request, { cacheName: APP_CACHE, ignoreSearch: true });
+  if (cached) return cached;
+  try {
+    return await fetch(request);
+  } catch {
+    return new Response('Sin conexión', { status: 503, statusText: 'Offline' });
   }
-  return (await network) ?? new Response('Sin conexión', { status: 503, statusText: 'Offline' });
 }
 
 // Web Share Target: stash incoming files, then hand off to the app page.

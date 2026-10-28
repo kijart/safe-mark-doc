@@ -56,6 +56,8 @@ const ui = {
   netStatus: $('net-status'),
   installBtn: $('install-btn'),
   toast: $('toast'),
+  updateBar: $('update-bar'),
+  updateBtn: $('update-btn'),
   redactBar: $('redact-bar'),
   redactMode: $('redact-mode'),
   redactUndo: $('redact-undo'),
@@ -1048,11 +1050,47 @@ function bindEvents() {
 
 async function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
+  let reg;
   try {
-    await navigator.serviceWorker.register('./sw.js');
+    reg = await navigator.serviceWorker.register('./sw.js');
   } catch (err) {
     console.warn('Service worker registration failed', err);
+    return;
   }
+
+  // A new version installs in the background and waits; the user decides when to switch,
+  // so the open page (and any document in it) is never mixed with another release.
+  let waiting = null;
+  const offerUpdate = (worker) => {
+    // Without a controller this is the first install, not an update.
+    if (!worker || !navigator.serviceWorker.controller) return;
+    waiting = worker;
+    ui.updateBar.hidden = false;
+  };
+  offerUpdate(reg.waiting);
+  reg.addEventListener('updatefound', () => {
+    const worker = reg.installing;
+    worker?.addEventListener('statechange', () => {
+      if (worker.state === 'installed') offerUpdate(worker);
+    });
+  });
+
+  let accepted = false;
+  ui.updateBtn.addEventListener('click', () => {
+    if (!waiting) return;
+    accepted = true;
+    ui.updateBtn.disabled = true;
+    waiting.postMessage('skip-waiting');
+  });
+  // Reload only for an accepted update: the first install also changes the controller.
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (accepted) location.reload();
+  });
+
+  // An installed app can stay open for days without navigating: check again when it comes back.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') reg.update().catch(() => {});
+  });
 }
 
 function init() {

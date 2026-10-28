@@ -101,6 +101,8 @@ The app is deployed to GitHub Pages and published as a container image automatic
 
 > **Important:** after changing any file, bump `VERSION` in `src/sw.js` so installed clients pick up the new cache.
 
+The service worker serves every file from the cache of its own version, so a page never mixes files from two releases. A new version downloads in the background and waits: open pages show "A new version is available" with an **Update** button, which switches to it and reloads. Until then, the version in use keeps working, also offline.
+
 ### Versioning
 
 The app follows [Semantic Versioning](https://semver.org/). The current version is `VERSION` in `src/sw.js`, which also names the offline cache (`safe-mark-doc-v<version>`):
