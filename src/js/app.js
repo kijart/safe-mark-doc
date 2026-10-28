@@ -1,7 +1,7 @@
-import { drawWatermark } from './js/watermark.js';
-import { buildPdf } from './js/pdf-writer.js';
-import { applyRedactions, hitTest, toPixels } from './js/redact.js';
-import { detectLanguage, getLanguage, getLocale, LANGUAGES, setLanguage, t, translateDom } from './js/i18n.js';
+import { drawWatermark } from './watermark.js';
+import { buildPdf } from './pdf-writer.js';
+import { applyRedactions, hitTest, toPixels } from './redact.js';
+import { detectLanguage, getLanguage, getLocale, LANGUAGES, setLanguage, t, translateDom } from './i18n.js';
 
 const MAX_SIDE = 4096;
 const MAX_AREA = 16_000_000; // stays under iOS Safari's canvas limit
@@ -236,8 +236,8 @@ async function loadImage(file) {
 
 let pdfjsPromise;
 function loadPdfJs() {
-  pdfjsPromise ??= import('./vendor/pdfjs/pdf.min.mjs').then((pdfjs) => {
-    pdfjs.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdfjs/pdf.worker.min.mjs', import.meta.url).href;
+  pdfjsPromise ??= import('../vendor/pdfjs/pdf.min.mjs').then((pdfjs) => {
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL('../vendor/pdfjs/pdf.worker.min.mjs', import.meta.url).href;
     return pdfjs;
   });
   return pdfjsPromise;

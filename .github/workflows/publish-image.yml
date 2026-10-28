@@ -12,15 +12,8 @@ on:
       - Dockerfile
       - .dockerignore
       - container/**
-      - index.html
-      - app.js
-      - styles.css
-      - sw.js
-      - manifest.webmanifest
+      - src/**
       - LICENSE
-      - js/**
-      - icons/**
-      - vendor/**
       - .github/workflows/publish-image.yml
 
 # Least privilege by default; the publish job asks for what it needs.
@@ -52,9 +45,9 @@ jobs:
       - name: Check version tag matches sw.js
         if: github.ref_type == 'tag'
         run: |
-          version=$(sed -n "s/^const VERSION = '\([^']*\)'.*/\1/p" sw.js)
+          version=$(sed -n "s/^const VERSION = '\([^']*\)'.*/\1/p" src/sw.js)
           if [ "$version" != "$GITHUB_REF_NAME" ]; then
-            echo "::error file=sw.js::Tag $GITHUB_REF_NAME does not match VERSION '$version' in sw.js."
+            echo "::error file=src/sw.js::Tag $GITHUB_REF_NAME does not match VERSION '$version' in sw.js."
             exit 1
           fi
 

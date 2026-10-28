@@ -1,14 +1,7 @@
 # Build context allow-list: only what the Dockerfile copies.
 # Podman and Buildah read this file too.
 *
-!index.html
-!app.js
-!styles.css
-!sw.js
-!manifest.webmanifest
+!src/
 !LICENSE
-!js/
-!icons/
-!vendor/
 !container/
 **/.DS_Store

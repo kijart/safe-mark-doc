@@ -43,7 +43,7 @@ function encodePng(size, rgba) {
   ]);
 }
 
-// Icon geometry in normalized coordinates (0..1), shared with icons/favicon.svg:
+// Icon geometry in normalized coordinates (0..1), shared with src/icons/favicon.svg:
 // a document with a folded corner, diagonal watermark stripes and text lines
 // (one of them redacted), protected by a shield badge.
 const PAGE = { left: 0.2, right: 0.7, top: 0.14, bottom: 0.86, radius: 0.045, fold: 0.15 };
@@ -161,7 +161,7 @@ function render(size, opts) {
   return encodePng(size, buf);
 }
 
-const outDir = new URL('../icons/', import.meta.url);
+const outDir = new URL('../src/icons/', import.meta.url);
 mkdirSync(outDir, { recursive: true });
 for (const [name, size, maskable] of [
   ['icon-192.png', 192, false],

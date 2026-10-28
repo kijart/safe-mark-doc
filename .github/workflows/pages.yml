@@ -32,9 +32,9 @@ jobs:
             echo "::error::Deploy from a version tag (x.y.z), not from branch '$GITHUB_REF_NAME'."
             exit 1
           fi
-          version=$(sed -n "s/^const VERSION = '\([^']*\)'.*/\1/p" sw.js)
+          version=$(sed -n "s/^const VERSION = '\([^']*\)'.*/\1/p" src/sw.js)
           if [ "$version" != "$GITHUB_REF_NAME" ]; then
-            echo "::error file=sw.js::Tag $GITHUB_REF_NAME does not match VERSION '$version' in sw.js."
+            echo "::error file=src/sw.js::Tag $GITHUB_REF_NAME does not match VERSION '$version' in sw.js."
             exit 1
           fi
           echo "Deploying version $version"
@@ -42,7 +42,8 @@ jobs:
       - name: Assemble site
         run: |
           mkdir _site
-          cp -R index.html app.js styles.css sw.js manifest.webmanifest LICENSE js icons vendor _site/
+          cp -R src/. _site/
+          cp LICENSE _site/
 
       - name: Configure Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

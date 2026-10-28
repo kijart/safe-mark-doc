@@ -6,8 +6,8 @@ const SHARE_CACHE = 'share-target';
 const ASSETS = [
   './',
   'index.html',
-  'styles.css',
-  'app.js',
+  'css/styles.css',
+  'js/app.js',
   'js/watermark.js',
   'js/pdf-writer.js',
   'js/redact.js',

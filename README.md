@@ -47,12 +47,12 @@ Sending a plain copy of your ID to a landlord, a hotel or an online service make
 
 ## Getting started
 
-There is no build step and no dependencies to install. Serve the project folder over HTTP — service workers require `localhost` or HTTPS:
+There is no build step and no dependencies to install. Serve the `src/` folder over HTTP — service workers require `localhost` or HTTPS:
 
 ```sh
-python3 -m http.server 8080
+python3 -m http.server 8080 -d src
 # or
-npx serve .
+npx serve src
 ```
 
 Then open <http://localhost:8080>.
@@ -93,17 +93,17 @@ The container only serves the static files — documents are still processed in 
 
 The port is bound to `127.0.0.1` because service workers — offline mode, installing the app and the share target — only work on `localhost` or over HTTPS. To use it from other devices, put an HTTPS reverse proxy in front of the container rather than publishing plain HTTP.
 
-> The CSP allows the small inline script in `index.html` by its hash. If you change that script, update the hash in `container/nginx/conf.d/default.conf` (the command is in the comment above it).
+> The CSP allows the small inline script in `src/index.html` by its hash. If you change that script, update the hash in `container/nginx/conf.d/default.conf` (the command is in the comment above it).
 
 ## Deployment
 
 The app is deployed to GitHub Pages and published as a container image automatically when a version is released (see below). It can also be hosted on any static host with HTTPS (Netlify, Cloudflare Pages, …): upload the app files listed in [Project structure](#project-structure).
 
-> **Important:** after changing any file, bump `VERSION` in `sw.js` so installed clients pick up the new cache.
+> **Important:** after changing any file, bump `VERSION` in `src/sw.js` so installed clients pick up the new cache.
 
 ### Versioning
 
-The app follows [Semantic Versioning](https://semver.org/). The current version is `VERSION` in `sw.js`, which also names the offline cache (`safe-mark-doc-v<version>`):
+The app follows [Semantic Versioning](https://semver.org/). The current version is `VERSION` in `src/sw.js`, which also names the offline cache (`safe-mark-doc-v<version>`):
 
 - **MAJOR** — incompatible changes, e.g. stored preferences or the trace log can no longer be read.
 - **MINOR** — new features that keep compatibility.
@@ -122,7 +122,7 @@ Pushing the tag deploys that version to GitHub Pages and publishes its [containe
 
 The [Deploy to GitHub Pages](.github/workflows/pages.yml) workflow runs on every `x.y.z` tag. It:
 
-1. fails if the tag does not match `VERSION` in `sw.js`, so a release can never ship with a stale offline cache;
+1. fails if the tag does not match `VERSION` in `src/sw.js`, so a release can never ship with a stale offline cache;
 2. publishes only the app files (no `README.md` or `tools/`);
 3. deploys with the official Pages actions, pinned to commit SHAs and with the minimum permissions needed.
 
@@ -163,7 +163,7 @@ Every tag is a multi-architecture image, so Docker and Podman pull the right var
 
 On every run, the workflow:
 
-1. fails if a version tag does not match `VERSION` in `sw.js`, like the Pages workflow;
+1. fails if a version tag does not match `VERSION` in `src/sw.js`, like the Pages workflow;
 2. builds the image and runs a smoke test (the container starts, passes its health check and serves the app) before pushing anything;
 3. pushes every platform with OCI labels and annotations (source, version, revision, license), an SBOM and a build provenance attestation, using actions pinned to commit SHAs.
 
@@ -177,18 +177,22 @@ One-time setup in the repository:
 
 ```text
 .
-├── index.html             # App shell
-├── styles.css             # Styles (light/dark themes)
-├── app.js                 # UI, file loading, export, trace log
-├── sw.js                  # Service worker: offline cache and share target
-├── manifest.webmanifest   # PWA manifest
+├── src/                   # The app, published as is (site root)
+│   ├── index.html         # App shell
+│   ├── sw.js              # Service worker: offline cache and share target
+│   ├── manifest.webmanifest  # PWA manifest
+│   ├── css/
+│   │   └── styles.css     # Styles (light/dark themes)
+│   ├── js/
+│   │   ├── app.js         # UI, file loading, export, trace log
+│   │   ├── watermark.js   # Watermark rendering engine (canvas)
+│   │   ├── redact.js      # Redaction: cover, blur, pixelate
+│   │   ├── pdf-writer.js  # Minimal PDF writer (one JPEG per page)
+│   │   └── i18n.js        # UI strings and language handling
+│   ├── icons/             # PWA icons and favicon
+│   └── vendor/
+│       └── pdfjs/         # pdf.js 4.10.38, used to read PDFs
 ├── LICENSE                # MIT license (also published with the app)
-├── js/
-│   ├── watermark.js       # Watermark rendering engine (canvas)
-│   ├── redact.js          # Redaction: cover, blur, pixelate
-│   ├── pdf-writer.js      # Minimal PDF writer (one JPEG per page)
-│   └── i18n.js            # UI strings and language handling
-├── icons/                 # PWA icons and favicon
 ├── tools/
 │   └── make-icons.mjs     # Regenerates the PNG icons
 ├── Dockerfile             # Container image (Docker/Podman)
@@ -197,13 +201,12 @@ One-time setup in the repository:
 │   └── nginx/             # Mirrors /etc/nginx/ in the image
 │       ├── conf.d/default.conf             # Server: caching, CSP, health check
 │       └── snippets/security-headers.conf  # Headers shared by every location
-├── .github/
-│   ├── dependabot.yml     # Weekly updates for actions and the base image
-│   └── workflows/
-│       ├── pages.yml          # Deploys version tags to GitHub Pages
-│       └── publish-image.yml  # Publishes container images to GHCR and Docker Hub
-└── vendor/
-    └── pdfjs/             # pdf.js 4.10.38, used to read PDFs
+└── .github/
+    ├── dependabot.yml     # Weekly updates for actions and the base image
+    └── workflows/
+        ├── pages.yml          # Deploys version tags to GitHub Pages
+        ├── publish-image.yml  # Publishes container images to GHCR and Docker Hub
+        └── release.yml        # Creates a GitHub release for each version tag
 ```
 
 ## Development
@@ -218,13 +221,13 @@ node tools/make-icons.mjs
 
 ### Adding a language
 
-In `js/i18n.js`:
+In `src/js/i18n.js`:
 
 1. Add a dictionary to `MESSAGES`.
 2. Add its locale to `LOCALES`.
 3. Add the language code to `LANGUAGES`.
 
-Then add a matching `<option>` to the language selector in `index.html`.
+Then add a matching `<option>` to the language selector in `src/index.html`.
 
 ## Privacy
 
@@ -238,8 +241,8 @@ Any modern evergreen browser (Chrome, Edge, Firefox, Safari). Large images are d
 
 ## Third-party software
 
-- [pdf.js](https://github.com/mozilla/pdf.js) 4.10.38 — Apache License 2.0. See `vendor/pdfjs/LICENSE`.
+- [pdf.js](https://github.com/mozilla/pdf.js) 4.10.38 — Apache License 2.0. See `src/vendor/pdfjs/LICENSE`.
 
 ## License
 
-[MIT](LICENSE). Third-party code under `vendor/` keeps its own license.
+[MIT](LICENSE). Third-party code under `src/vendor/` keeps its own license.

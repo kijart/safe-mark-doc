@@ -2,10 +2,8 @@ FROM nginxinc/nginx-unprivileged:1.31-alpine
 
 COPY container/nginx/ /etc/nginx/
 
-COPY index.html app.js styles.css sw.js manifest.webmanifest LICENSE /usr/share/nginx/html/
-COPY js/ /usr/share/nginx/html/js/
-COPY icons/ /usr/share/nginx/html/icons/
-COPY vendor/ /usr/share/nginx/html/vendor/
+COPY src/ /usr/share/nginx/html/
+COPY LICENSE /usr/share/nginx/html/
 
 EXPOSE 8080
 
