@@ -28,6 +28,7 @@ Everything runs in your browser. There is no server, no upload and no tracking: 
 - [Privacy](#privacy)
 - [Browser support](#browser-support)
 - [Third-party software](#third-party-software)
+- [AI assistance](#ai-assistance)
 - [License](#license)
 
 ## Why
@@ -244,6 +245,10 @@ Any modern evergreen browser (Chrome, Edge, Firefox, Safari). Large images are d
 ## Third-party software
 
 - [pdf.js](https://github.com/mozilla/pdf.js) 4.10.38 — Apache License 2.0. See `src/vendor/pdfjs/LICENSE`.
+
+## AI assistance
+
+This project was developed with the help of AI coding assistants, used to generate and refactor code. All code has been manually reviewed and tested; the design, decisions and responsibility remain with the author.
 
 ## License
 
