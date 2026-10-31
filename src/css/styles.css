@@ -862,6 +862,14 @@ input[type="radio"] {
   color: var(--accent);
 }
 
+.o-site-footer__version {
+  color: var(--muted);
+}
+
+.o-site-footer__version::before {
+  content: " · ";
+}
+
 /* ==========================================================================
    6. Templates
    ========================================================================== */

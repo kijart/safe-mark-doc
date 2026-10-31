@@ -63,6 +63,7 @@ const ui = {
   passwordCancel: $('password-cancel'),
   updateBar: $('update-bar'),
   updateBtn: $('update-btn'),
+  appVersion: $('app-version'),
   redactBar: $('redact-bar'),
   redactMode: $('redact-mode'),
   redactUndo: $('redact-undo'),
@@ -1104,6 +1105,16 @@ async function registerServiceWorker() {
     console.warn('Service worker registration failed', err);
     return;
   }
+
+  // Ask the worker serving this page which release it is (VERSION in sw.js is the only source).
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (!event.data?.version) return;
+    ui.appVersion.textContent = `v${event.data.version}`;
+    ui.appVersion.hidden = false;
+  });
+  const serving = navigator.serviceWorker.controller;
+  if (serving) serving.postMessage('get-version');
+  else navigator.serviceWorker.ready.then((r) => r.active?.postMessage('get-version'));
 
   // A new version installs in the background and waits; the user decides when to switch,
   // so the open page (and any document in it) is never mixed with another release.

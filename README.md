@@ -106,7 +106,7 @@ The service worker serves every file from the cache of its own version, so a pag
 
 ### Versioning
 
-The app follows [Semantic Versioning](https://semver.org/). The current version is `VERSION` in `src/sw.js`, which also names the offline cache (`safe-mark-doc-v<version>`):
+The app follows [Semantic Versioning](https://semver.org/). The current version is `VERSION` in `src/sw.js`, which also names the offline cache (`safe-mark-doc-v<version>`) and is shown in the page footer:
 
 - **MAJOR** — incompatible changes, e.g. stored preferences or the trace log can no longer be read.
 - **MINOR** — new features that keep compatibility.

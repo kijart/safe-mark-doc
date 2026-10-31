@@ -32,9 +32,11 @@ self.addEventListener('install', (event) => {
   // so an open page never mixes files from two versions.
 });
 
-// The page sends this when the user accepts the update.
+// The page sends 'skip-waiting' when the user accepts the update, and 'get-version' to show
+// the release it is running.
 self.addEventListener('message', (event) => {
   if (event.data === 'skip-waiting') self.skipWaiting();
+  else if (event.data === 'get-version') event.source?.postMessage({ version: VERSION });
 });
 
 self.addEventListener('activate', (event) => {
