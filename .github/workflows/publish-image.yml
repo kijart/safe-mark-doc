@@ -1,7 +1,7 @@
 name: Publish container image
 
 # latest: every push to master that changes the image
-# x.y.Z, x.y, x: every x.y.z tag
+# x.y.z, x.y, x: every x.y.z tag
 on:
   push:
     branches: [master]
@@ -16,7 +16,6 @@ on:
       - LICENSE
       - .github/workflows/publish-image.yml
 
-# Least privilege by default; the publish job asks for what it needs.
 permissions:
   contents: read
 
@@ -35,7 +34,7 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
-      packages: write # ghcr.io
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -63,7 +62,7 @@ jobs:
           context: .
           load: true
           tags: ${{ env.IMAGE_NAME }}:test
-          cache-from: type=gha # the push step below writes the cache
+          cache-from: type=gha
 
       - name: Smoke test
         run: |
@@ -101,7 +100,7 @@ jobs:
           images: |
             docker.io/${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
             ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
-          flavor: latest=false # latest only follows master, never a version tag
+          flavor: latest=false
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
             type=semver,pattern={{version}}

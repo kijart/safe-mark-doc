@@ -3,14 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     tags: ['[0-9]+.[0-9]+.[0-9]+']
-  # Manual (re)deploy: pick a version tag in "Use workflow from".
   workflow_dispatch:
 
-# Least privilege by default; the deploy job asks for what it needs.
 permissions:
   contents: read
 
-# One deployment at a time; never cancel one that is already running.
 concurrency:
   group: pages
   cancel-in-progress: false

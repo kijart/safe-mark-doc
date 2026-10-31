@@ -1,7 +1,7 @@
 # Keeps pinned dependencies up to date with weekly pull requests.
 version: 2
 updates:
-  # Actions in .github/workflows (pinned to commit SHAs; Dependabot keeps them pinned).
+  # Actions in .github/workflows (pinned to commit SHAs).
   - package-ecosystem: github-actions
     directory: /
     schedule:
