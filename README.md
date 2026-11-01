@@ -100,7 +100,7 @@ The port is bound to `127.0.0.1` because service workers — offline mode, insta
 
 The app is deployed to GitHub Pages and published as a container image automatically when a version is released (see below). It can also be hosted on any static host with HTTPS (Netlify, Cloudflare Pages, …): upload the app files listed in [Project structure](#project-structure).
 
-> **Important:** after changing any file, bump `VERSION` in `src/sw.js` so installed clients pick up the new cache.
+> **Important:** every release must bump `VERSION` in `src/sw.js` so installed clients pick up the new cache. [Release Please](#versioning) does it for you; don't edit it by hand.
 
 The service worker serves every file from the cache of its own version, so a page never mixes files from two releases. A new version downloads in the background and waits: open pages show "A new version is available" with an **Update** button, which switches to it and reloads. Until then, the version in use keeps working, also offline.
 
@@ -112,14 +112,22 @@ The app follows [Semantic Versioning](https://semver.org/). The current version 
 - **MINOR** — new features that keep compatibility.
 - **PATCH** — bug fixes and small adjustments.
 
-To release a version, update `VERSION`, commit, and tag the commit with the same version:
+Releases are automated with [Release Please](https://github.com/googleapis/release-please-action), which reads the [Conventional Commits](https://www.conventionalcommits.org/) on `master`:
 
-```sh
-git tag -a 1.0.0 -m "1.0.0"
-git push --follow-tags
-```
+- a `!` after the type (`feat!:`, `fix!:`…) or a `BREAKING CHANGE:` footer at the end of the commit message bumps **MAJOR**;
+- `feat:` bumps **MINOR**;
+- any other type (`fix`, `perf`, `refactor`, `style`, `docs`, `test`, `build`, `ci`, `chore`, `revert`) bumps **PATCH**.
 
-Pushing the tag deploys that version to GitHub Pages and publishes its [container images](#container-images).
+Every push to `master` updates a release PR (`chore(release): x.y.z`) that bumps `VERSION` in `src/sw.js`, `version.txt` and `.release-please-manifest.json`, and adds the new section to [CHANGELOG.md](CHANGELOG.md). Merging it tags the commit `x.y.z` and creates the GitHub release with those notes. The tag deploys that version to GitHub Pages and publishes its [container images](#container-images).
+
+To release a specific version instead, add a `Release-As: x.y.z` footer to a commit.
+
+The configuration is in `release-please-config.json`. Every commit type shows up in the changelog, so every type also makes a release.
+
+One-time setup in the repository (tags pushed with the default `GITHUB_TOKEN` would not trigger the deploy workflows, so the [Release Please](.github/workflows/release-please.yml) workflow uses a GitHub App token):
+
+1. Create a [GitHub App](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app) with no webhook and the repository permissions **Contents: Read and write** and **Pull requests: Read and write**, generate a private key, and install the app on this repository.
+2. **Settings → Secrets and variables → Actions:** add the variable `RELEASE_APP_CLIENT_ID` (the app's client ID) and the secret `RELEASE_APP_PRIVATE_KEY` (the private key).
 
 ### GitHub Pages
 
@@ -196,6 +204,10 @@ One-time setup in the repository:
 │   └── vendor/
 │       └── pdfjs/         # pdf.js 4.10.38, used to read PDFs
 ├── LICENSE                # MIT license (also published with the app)
+├── CHANGELOG.md           # Release notes, written by Release Please
+├── release-please-config.json     # Release Please configuration
+├── .release-please-manifest.json  # Current version, updated by Release Please
+├── version.txt            # Current version, updated by Release Please
 ├── tools/
 │   └── make-icons.mjs     # Regenerates the PNG icons
 ├── Dockerfile             # Container image (Docker/Podman)
@@ -209,7 +221,7 @@ One-time setup in the repository:
     └── workflows/
         ├── pages.yml          # Deploys version tags to GitHub Pages
         ├── publish-image.yml  # Publishes container images to GHCR and Docker Hub
-        └── release.yml        # Creates a GitHub release for each version tag
+        └── release-please.yml # Opens release PRs; merging one tags and releases the version
 ```
 
 ## Development

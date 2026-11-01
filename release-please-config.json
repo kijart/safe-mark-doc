@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "include-v-in-tag": false,
+      "pull-request-title-pattern": "chore(release): ${version}",
+      "extra-files": [{ "type": "generic", "path": "src/sw.js" }],
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "perf", "section": "Performance" },
+        { "type": "revert", "section": "Reverts" },
+        { "type": "refactor", "section": "Refactoring" },
+        { "type": "style", "section": "Styles" },
+        { "type": "docs", "section": "Documentation" },
+        { "type": "test", "section": "Tests" },
+        { "type": "build", "section": "Build" },
+        { "type": "ci", "section": "CI" },
+        { "type": "chore", "section": "Chores" }
+      ]
+    }
+  }
+}
