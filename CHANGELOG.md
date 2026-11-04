@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.2.0](https://github.com/kijart/safe-mark-doc/compare/1.1.0...1.2.0) (2026-11-04)
+
+
+### Features
+
+* show the app version in the footer ([1a00413](https://github.com/kijart/safe-mark-doc/commit/1a004138e2c1741af4c8d6bf8857658d3add2b92))
+
+
+### Bug Fixes
+
+* ask for PDF passwords in a masked dialog ([6c453bd](https://github.com/kijart/safe-mark-doc/commit/6c453bdd70526e78bdefd34c78b56663d7b13ab3))
+* **redact:** keep blur and pixelate irreversible on thin text strips ([6c1b2c0](https://github.com/kijart/safe-mark-doc/commit/6c1b2c0731939f59297517a3331fe26b25f646b8))
+* **sw:** serve one version at a time and prompt before updating ([a6c99bb](https://github.com/kijart/safe-mark-doc/commit/a6c99bbc93e1006f10fc699d98b7ba7f4ebfcd81))
+
+
+### Refactoring
+
+* clean up comments for clarity ([cdf1148](https://github.com/kijart/safe-mark-doc/commit/cdf114819a76043c310b7fb6749bd3ba6f07ffb9))
+
+
+### Documentation
+
+* add AI assistance section to README ([403d879](https://github.com/kijart/safe-mark-doc/commit/403d87999b6418c417b134a8d5d57d50f4d9a536))
+* group README badges and add the Release Please badge ([4c9f6c3](https://github.com/kijart/safe-mark-doc/commit/4c9f6c313503b32827bc1f37878df7df53b10f95))
+
+
+### CI
+
+* automate releases with release-please ([c21df16](https://github.com/kijart/safe-mark-doc/commit/c21df16429fa0339827fdc5ea1c1b10c87c4919c))
+
 ## [1.1.0](https://github.com/kijart/safe-mark-doc/compare/1.0.0...1.1.0) (2026-10-28)
 
 
