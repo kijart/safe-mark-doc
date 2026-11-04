@@ -270,32 +270,38 @@ function loadPdfJs() {
  * Opens a PDF and reads each page's size without rasterizing it. The document stays open
  * (pushed to `docs`, which the caller owns) so pages can be rendered on demand.
  */
-async function loadPdf(file, docs) {
+async function loadPdf(file, docs, signal) {
   const pdfjs = await loadPdfJs();
-  const task = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false });
+  const data = new Uint8Array(await file.arrayBuffer());
+  signal.throwIfAborted();
+  const task = pdfjs.getDocument({ data, isEvalSupported: false });
   let cancelled = false;
+  const cancel = () => {
+    cancelled = true;
+    task.destroy();
+  };
+  signal.addEventListener('abort', cancel);
   task.onPassword = async (updatePassword, reason) => {
     const retry = reason === pdfjs.PasswordResponses.INCORRECT_PASSWORD;
-    const pw = await askPassword(retry ? t('load.passwordRetry') : t('load.passwordPrompt', { name: file.name }));
-    if (pw === null) {
-      cancelled = true;
-      task.destroy();
-    } else {
-      updatePassword(pw);
-    }
+    const pw = await askPassword(retry ? t('load.passwordRetry') : t('load.passwordPrompt', { name: file.name }), signal);
+    if (pw === null) cancel();
+    else updatePassword(pw);
   };
   let doc;
   try {
     doc = await task.promise;
   } catch (err) {
-    // Cancelling the password is the user's choice, not an error: openFiles stays quiet.
-    if (cancelled) throw new DOMException('Password cancelled', 'AbortError');
+    // Cancelling the password or starting another load is not an error: openFiles stays quiet.
+    if (cancelled) throw new DOMException('Load cancelled', 'AbortError');
     throw err;
+  } finally {
+    signal.removeEventListener('abort', cancel);
   }
   docs.push(doc);
   const pages = [];
   for (let n = 1; n <= doc.numPages; n++) {
-    setBusy(t('load.readingPage', { n, total: doc.numPages }));
+    signal.throwIfAborted();
+    setBusy(t('load.readingPage', { n, total: doc.numPages }), 'load');
     const page = await doc.getPage(n);
     const unit = page.getViewport({ scale: 1 });
     let scale = Math.min(3, Math.max(1, PDF_TARGET_WIDTH / unit.width));
@@ -345,8 +351,11 @@ function destroyDocs(docs) {
   }
 }
 
-/** Asks for a PDF password in a modal dialog. Resolves to the password, or null if cancelled. */
-function askPassword(message) {
+/**
+ * Asks for a PDF password in a modal dialog. Resolves to the password, or null if cancelled
+ * (also when `signal` aborts).
+ */
+function askPassword(message, signal) {
   const { passwordDialog: dialog, passwordForm: form, passwordInput: input, passwordCancel: cancel } = ui;
   ui.passwordMessage.textContent = message;
   input.value = '';
@@ -355,6 +364,7 @@ function askPassword(message) {
       form.removeEventListener('submit', onSubmit);
       cancel.removeEventListener('click', onCancel);
       dialog.removeEventListener('close', onClose);
+      signal.removeEventListener('abort', onCancel);
       if (dialog.open) dialog.close();
       input.value = '';
       resolve(value);
@@ -369,6 +379,7 @@ function askPassword(message) {
     form.addEventListener('submit', onSubmit);
     cancel.addEventListener('click', onCancel);
     dialog.addEventListener('close', onClose);
+    signal.addEventListener('abort', onCancel);
     dialog.showModal();
     input.focus();
   });
@@ -378,18 +389,26 @@ function isPdf(file) {
   return file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
 }
 
+// The latest load wins: starting one (or clearing the document) cancels the one in progress.
+let loadController = null;
+
 async function openFiles(fileList) {
   const files = [...fileList].filter((f) => isPdf(f) || f.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|avif|heic)$/i.test(f.name));
   if (!files.length) {
     toast(t('load.unsupported'), true);
     return;
   }
-  setBusy(t('load.loading'));
+  loadController?.abort();
+  const controller = new AbortController();
+  loadController = controller;
+  const { signal } = controller;
+  setBusy(t('load.loading'), 'load');
   const docs = [];
   try {
     const pages = [];
     for (const file of files) {
-      pages.push(...(isPdf(file) ? await loadPdf(file, docs) : [await loadImage(file)]));
+      pages.push(...(isPdf(file) ? await loadPdf(file, docs, signal) : [await loadImage(file)]));
+      signal.throwIfAborted();
     }
     if (!pages.length) throw new Error(t('load.noPages'));
     for (const page of pages) page.regions = [];
@@ -410,12 +429,16 @@ async function openFiles(fileList) {
     renderPreview();
   } catch (err) {
     destroyDocs(docs);
-    if (err?.name === 'AbortError') return;
+    if (signal.aborted || err?.name === 'AbortError') return;
     console.error(err);
     const msg = err?.name === 'PasswordException' ? t('load.passwordFailed') : t('load.failed', { error: err.message || err });
     toast(msg, true);
   } finally {
-    setBusy(null);
+    // A cancelled load leaves the spinner to the load that replaced it.
+    if (loadController === controller) {
+      loadController = null;
+      setBusy(null, 'load');
+    }
   }
 }
 
@@ -432,6 +455,7 @@ function closeDocument() {
 
 /** Drops the loaded document and returns the preview to its initial empty state. Watermark settings are kept. */
 function resetDocument() {
+  loadController?.abort();
   closeDocument();
   state.pages = [];
   state.pageIndex = 0;
@@ -755,25 +779,25 @@ async function exportFiles() {
     if (format === 'pdf') {
       const pdfPages = [];
       for (const [i, page] of pages.entries()) {
-        setBusy(t('export.renderingPage', { n: i + 1, total: pages.length }));
+        setBusy(t('export.renderingPage', { n: i + 1, total: pages.length }), 'export');
         await renderPage(page);
         const jpeg = new Uint8Array(await (await canvasToBlob(work, 'image/jpeg', 0.9)).arrayBuffer());
         pdfPages.push({ jpeg, pxWidth: work.width, pxHeight: work.height, ptWidth: page.ptWidth, ptHeight: page.ptHeight });
       }
-      return [new File([buildPdf(pdfPages)], `${base}.pdf`, { type: 'application/pdf' })];
+      return { files: [new File([buildPdf(pdfPages)], `${base}.pdf`, { type: 'application/pdf' })], options };
     }
 
     const type = format === 'png' ? 'image/png' : 'image/jpeg';
     const ext = format === 'png' ? 'png' : 'jpg';
     const files = [];
     for (const [i, page] of pages.entries()) {
-      setBusy(t('export.renderingImage', { n: i + 1, total: pages.length }));
+      setBusy(t('export.renderingImage', { n: i + 1, total: pages.length }), 'export');
       await renderPage(page);
       const blob = await canvasToBlob(work, type, 0.9);
       const name = pages.length > 1 ? `${base}-p${i + 1}.${ext}` : `${base}.${ext}`;
       files.push(new File([blob], name, { type }));
     }
-    return files;
+    return { files, options };
   } finally {
     releaseCanvas(work);
     exportDocs = [];
@@ -796,17 +820,18 @@ async function withExport(action) {
   if (!state.pages.length) return;
   ui.downloadBtn.disabled = ui.shareBtn.disabled = true;
   try {
-    const files = await exportFiles();
-    setBusy(null);
+    const { files, options } = await exportFiles();
+    setBusy(null, 'export');
     const done = await action(files);
-    if (done) addLogEntry(files);
+    // Log the options the files were made with: a load during the export changes the trace code.
+    if (done) addLogEntry(files, options);
   } catch (err) {
     if (err?.name !== 'AbortError') {
       console.error(err);
       toast(t('export.failed', { error: err.message || err }), true);
     }
   } finally {
-    setBusy(null);
+    setBusy(null, 'export');
     ui.downloadBtn.disabled = ui.shareBtn.disabled = false;
   }
 }
@@ -836,8 +861,7 @@ async function handleShare() {
 
 // ---------- Trace log ----------
 
-function addLogEntry(files) {
-  const opts = getOptions();
+function addLogEntry(files, opts) {
   const log = readJson(LOG_KEY, []);
   const last = log[0];
   if (last && last.code === opts.code && last.purpose === opts.purpose && last.file === files[0].name) return;
@@ -893,12 +917,12 @@ function renderLog() {
 
 // ---------- UI helpers ----------
 
-// Labels by owner, so the preview's spinner and a load/export don't clear each other.
+// Labels by owner ('export', 'load' or 'preview'), so a load, an export and the preview don't clear each other.
 const busyLabels = new Map();
-function setBusy(label, owner = 'task') {
+function setBusy(label, owner) {
   if (label) busyLabels.set(owner, label);
   else busyLabels.delete(owner);
-  const current = busyLabels.get('task') ?? busyLabels.get('preview');
+  const current = busyLabels.get('export') ?? busyLabels.get('load') ?? busyLabels.get('preview');
   if (current) ui.busyLabel.textContent = current;
   ui.busy.hidden = !current;
 }
