@@ -99,6 +99,9 @@ const MESSAGES = {
     'redact.hint.pixelate': 'Arrastra sobre la zona que quieras pixelar.',
     'redact.count.one': '1 zona oculta en esta página.',
     'redact.count.other': '{count} zonas ocultas en esta página.',
+    'redact.selected': 'Zona {n} de {count} seleccionada.',
+    'redact.canvas': 'Vista previa del documento',
+    'redact.keys': 'Teclado: Intro añade una zona (con «Tapar», «Desenfocar» o «Pixelar» elegido), Espacio selecciona la siguiente (Mayús+Espacio, la anterior), las flechas la mueven, Mayús+flechas cambian su tamaño, Supr la elimina y Esc quita la selección.',
 
     'log.aria': 'Registro de copias compartidas',
     'log.title': 'Registro de copias',
@@ -234,6 +237,9 @@ const MESSAGES = {
     'redact.hint.pixelate': 'Drag over the area you want to pixelate.',
     'redact.count.one': '1 hidden area on this page.',
     'redact.count.other': '{count} hidden areas on this page.',
+    'redact.selected': 'Area {n} of {count} selected.',
+    'redact.canvas': 'Document preview',
+    'redact.keys': 'Keyboard: Enter adds an area (with “Cover”, “Blur” or “Pixelate” chosen), Space selects the next one (Shift+Space, the previous one), arrows move it, Shift+arrows resize it, Delete removes it and Esc clears the selection.',
 
     'log.aria': 'Log of shared copies',
     'log.title': 'Copy log',

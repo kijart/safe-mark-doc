@@ -177,13 +177,14 @@
           <button type="button" class="a-btn a-btn--small a-btn--ghost a-btn--danger" id="redact-delete" disabled data-i18n="redact.delete">Eliminar zona</button>
         </div>
       </div>
-      <p class="a-hint a-hint--redact" id="redact-hint" hidden></p>
+      <p class="a-hint a-hint--redact" id="redact-hint" aria-live="polite" hidden></p>
+      <p class="a-hint a-hint--redact a-hint--keys" id="redact-keys" data-i18n="redact.keys"></p>
       <div class="o-stage" id="stage">
         <div class="m-empty" id="empty">
           <svg viewBox="0 0 120 90" aria-hidden="true"><rect x="6" y="8" width="108" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="34" cy="38" r="12" fill="none" stroke="currentColor" stroke-width="3"/><path d="M20 66c4-9 24-9 28 0M60 32h40M60 44h32M60 56h36" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M8 70 112 20" stroke="currentColor" stroke-width="2" stroke-dasharray="4 5" opacity=".6"/></svg>
           <p data-i18n="preview.empty">Elige un documento para ver aquí cómo quedará.</p>
         </div>
-        <canvas id="preview-canvas" hidden></canvas>
+        <canvas id="preview-canvas" tabindex="0" role="application" aria-describedby="redact-hint redact-keys" data-i18n-attr="aria-label:redact.canvas" hidden></canvas>
         <div class="m-busy" id="busy" hidden><span class="a-spinner"></span><span id="busy-label" data-i18n="busy.default">Procesando…</span></div>
       </div>
     </section>

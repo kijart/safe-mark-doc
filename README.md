@@ -28,6 +28,7 @@ Everything runs in your browser. There is no server, no upload and no tracking: 
   - [Regenerating icons](#regenerating-icons)
   - [Adding a language](#adding-a-language)
 - [Privacy](#privacy)
+- [Accessibility](#accessibility)
 - [Browser support](#browser-support)
 - [Third-party software](#third-party-software)
 - [AI assistance](#ai-assistance)
@@ -42,7 +43,7 @@ Sending a plain copy of your ID to a landlord, a hotel or an online service make
 - **Inputs** — images (JPG, PNG, WebP, …) and PDFs, including password-protected PDFs. Multiple files and multi-page documents in one go.
 - **Watermark content** — custom text, optional date and an optional unique trace code per copy. A local log records which code was given to whom, so a leaked copy can be traced back.
 - **Hard-to-remove patterns** — wavy text with per-letter variation, alternating filled/outlined rows, guilloché-style background mesh and microtext.
-- **Redaction** — cover, blur or pixelate sensitive areas by dragging over the preview, page by page.
+- **Redaction** — cover, blur or pixelate sensitive areas by dragging over the preview or with the keyboard, page by page.
 - **Safe output** — the result is flattened (rasterized) and stripped of EXIF metadata. Export to PDF, JPG or PNG.
 - **Sharing** — native share sheet (Web Share API) and Android _share target_, so you can send files to the app straight from other apps.
 - **Works offline** — installable; after the first visit everything is cached by a service worker.
@@ -251,6 +252,23 @@ Then add a matching `<option>` to the language selector in `src/index.html`.
 - Files are processed locally with the Canvas API; nothing is sent over the network.
 - Preferences and the trace log are stored in the browser's `localStorage` only (the log keeps the latest 200 entries and can be cleared from the UI).
 - Exported files are re-encoded from pixels, so original metadata (EXIF, PDF properties, hidden text layers) is not carried over.
+
+## Accessibility
+
+- Every control can be reached and used with the keyboard, including the preview, which shows its shortcuts while it has keyboard focus.
+- Redaction shortcuts, with the preview focused:
+
+  | Key                 | Action                                                     |
+  | ------------------- | ---------------------------------------------------------- |
+  | Enter               | Add an area in the chosen mode (Cover, Blur or Pixelate)   |
+  | Space / Shift+Space | Select the next / previous area                            |
+  | Arrows              | Move the selected area                                     |
+  | Shift+Arrows        | Resize the selected area                                   |
+  | Delete              | Remove the selected area                                   |
+  | Esc                 | Clear the selection                                        |
+
+- For screen readers, the preview is labelled, described by the redaction hint and the shortcuts, and announces which area is selected.
+- Known gaps: loading and export progress is not announced, errors are announced politely instead of as alerts, and the color swatches don't expose which one is selected.
 
 ## Browser support
 

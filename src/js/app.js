@@ -624,7 +624,10 @@ function syncRedactUi() {
   ui.redactUndo.disabled = count === 0;
   ui.redactDelete.disabled = state.selected < 0;
   const summary = count ? ` ${t(count === 1 ? 'redact.count.one' : 'redact.count.other', { count })}` : '';
-  ui.redactHint.textContent = t(`redact.hint.${state.redactMode}`) + summary;
+  const selected = state.selected >= 0 ? ` ${t('redact.selected', { n: state.selected + 1, count })}` : '';
+  const hint = t(`redact.hint.${state.redactMode}`) + summary + selected;
+  // The hint is a live region: rewriting the same text on every render would announce it again.
+  if (ui.redactHint.textContent !== hint) ui.redactHint.textContent = hint;
   ui.canvas.classList.toggle('is-drawing', state.redactMode !== 'none');
   ui.canvas.classList.toggle('is-selectable', state.redactMode === 'none' && count > 0);
 }
@@ -651,6 +654,12 @@ function deleteSelectedRegion() {
   state.selected = -1;
   renderPreview();
 }
+
+// Keyboard editing, in normalized page units.
+const KEY_STEP = 0.01;
+const MIN_KEY_SIZE = 0.02;
+const NEW_REGION = { x: 0.35, y: 0.45, w: 0.3, h: 0.1 };
+const ARROW_KEYS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
 
 function bindRedactEvents() {
   let origin = null;
@@ -719,6 +728,39 @@ function bindRedactEvents() {
   };
   ui.canvas.addEventListener('pointerup', (e) => finish(e, false));
   ui.canvas.addEventListener('pointercancel', (e) => finish(e, true));
+
+  // Keyboard alternative to drawing: Enter adds an area, Space cycles them, arrows move and Shift+arrows resize.
+  ui.canvas.addEventListener('keydown', (e) => {
+    const page = currentPage();
+    if (!page || page !== previewPage || e.altKey || e.ctrlKey || e.metaKey) return;
+    const count = page.regions.length;
+    const arrow = ARROW_KEYS[e.key];
+    if (e.key === 'Enter') {
+      if (state.redactMode === 'none') return;
+      e.preventDefault();
+      page.regions.push({ ...NEW_REGION, mode: state.redactMode });
+      state.selected = page.regions.length - 1;
+      renderPreview();
+    } else if (e.key === ' ') {
+      if (!count) return;
+      e.preventDefault();
+      const step = e.shiftKey ? -1 : 1;
+      selectRegion(state.selected < 0 ? (step > 0 ? 0 : count - 1) : (state.selected + step + count) % count);
+    } else if (arrow && state.selected >= 0) {
+      e.preventDefault();
+      const r = page.regions[state.selected];
+      const dx = arrow[0] * KEY_STEP;
+      const dy = arrow[1] * KEY_STEP;
+      if (e.shiftKey) {
+        r.w = Math.min(1 - r.x, Math.max(MIN_KEY_SIZE, r.w + dx));
+        r.h = Math.min(1 - r.y, Math.max(MIN_KEY_SIZE, r.h + dy));
+      } else {
+        r.x = Math.min(1 - r.w, Math.max(0, r.x + dx));
+        r.y = Math.min(1 - r.h, Math.max(0, r.y + dy));
+      }
+      renderPreview();
+    }
+  });
 
   ui.redactUndo.addEventListener('click', () => {
     const page = currentPage();

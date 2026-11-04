@@ -311,6 +311,15 @@ input[type="radio"] {
   margin: 0 0 10px;
 }
 
+/* Keyboard help: read by screen readers through aria-describedby, shown while the preview has keyboard focus. */
+.a-hint--keys {
+  display: none;
+}
+
+.o-panel:has(canvas:focus-visible) .a-hint--keys {
+  display: block;
+}
+
 .a-privacy {
   background: var(--accent-soft);
   color: var(--text);
@@ -713,6 +722,11 @@ input[type="radio"] {
   height: auto;
   border-radius: 4px;
   box-shadow: var(--shadow);
+}
+
+.o-stage canvas:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .o-stage canvas.is-drawing {
