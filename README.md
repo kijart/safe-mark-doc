@@ -250,7 +250,7 @@ Then add a matching `<option>` to the language selector in `src/index.html`.
 ## Privacy
 
 - Files are processed locally with the Canvas API; nothing is sent over the network.
-- Preferences and the trace log are stored in the browser's `localStorage` only (the log keeps the latest 200 entries and can be cleared from the UI).
+- Preferences and the trace log are stored in the browser's `localStorage` only (the log keeps the latest 200 entries and can be cleared from the UI). The log saves the code, purpose, date and number of files; the file name, which usually contains the original one, is saved only when **Save the file name** is checked.
 - Exported files are re-encoded from pixels, so original metadata (EXIF, PDF properties, hidden text layers) is not carried over.
 
 ## Accessibility

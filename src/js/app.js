@@ -53,6 +53,7 @@ const ui = {
   busyLabel: $('busy-label'),
   logList: $('log-list'),
   logClear: $('log-clear'),
+  logKeepName: $('log-keep-name'),
   netStatus: $('net-status'),
   installBtn: $('install-btn'),
   toast: $('toast'),
@@ -165,6 +166,7 @@ function savePrefs() {
     wave: ui.optWave.checked,
     guilloche: ui.optGuilloche.checked,
     micro: ui.optMicro.checked,
+    logKeepName: ui.logKeepName.checked,
   });
 }
 
@@ -182,6 +184,7 @@ function loadPrefs() {
   ui.optWave.checked = p.wave ?? true;
   ui.optGuilloche.checked = p.guilloche ?? true;
   ui.optMicro.checked = p.micro ?? true;
+  ui.logKeepName.checked = p.logKeepName ?? false;
 }
 
 function syncLabels() {
@@ -905,12 +908,15 @@ async function handleShare() {
 
 function addLogEntry(files, opts) {
   const log = readJson(LOG_KEY, []);
+  // The exported name contains the original one (e.g. a person's name), so it is kept only on request.
+  const file = ui.logKeepName.checked ? files[0].name : undefined;
   const last = log[0];
-  if (last && last.code === opts.code && last.purpose === opts.purpose && last.file === files[0].name) return;
+  // Downloading and then sharing the same copy logs it once.
+  if (last && last.code === (opts.code || '—') && last.purpose === opts.purpose && last.count === files.length && last.file === file) return;
   log.unshift({
     code: opts.code || '—',
     purpose: opts.purpose,
-    file: files[0].name,
+    file,
     count: files.length,
     at: new Date().toISOString(),
   });
@@ -940,7 +946,10 @@ function renderLog() {
     const meta = document.createElement('span');
     meta.className = 'o-log-list__meta';
     const when = new Date(entry.at).toLocaleString(getLocale(), { dateStyle: 'short', timeStyle: 'short' });
-    meta.textContent = `${when} · ${entry.file}${entry.count > 1 ? ` (+${entry.count - 1})` : ''}`;
+    const files = entry.file
+      ? `${entry.file}${entry.count > 1 ? ` (+${entry.count - 1})` : ''}`
+      : t(entry.count === 1 ? 'log.files.one' : 'log.files.other', { count: entry.count });
+    meta.textContent = `${when} · ${files}`;
     const del = document.createElement('button');
     del.type = 'button';
     del.className = 'a-btn a-btn--small a-btn--ghost o-log-list__delete';
@@ -1143,6 +1152,7 @@ function bindEvents() {
 
   ui.downloadBtn.addEventListener('click', handleDownload);
   ui.shareBtn.addEventListener('click', handleShare);
+  ui.logKeepName.addEventListener('change', savePrefs);
   ui.logClear.addEventListener('click', () => {
     if (!confirm(t('log.confirmClear'))) return;
     writeJson(LOG_KEY, []);

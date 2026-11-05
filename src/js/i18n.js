@@ -111,6 +111,9 @@ const MESSAGES = {
     'log.empty': 'Aún no has exportado ninguna copia.',
     'log.delete': 'Eliminar {code} del registro',
     'log.confirmClear': '¿Borrar todo el registro de copias?',
+    'log.keepName': 'Guardar el nombre del archivo',
+    'log.files.one': '1 archivo',
+    'log.files.other': '{count} archivos',
 
     'load.loading': 'Cargando…',
     'load.readingPage': 'Leyendo página {n} de {total}…',
@@ -250,6 +253,9 @@ const MESSAGES = {
     'log.empty': 'You have not exported any copies yet.',
     'log.delete': 'Remove {code} from the log',
     'log.confirmClear': 'Clear the whole copy log?',
+    'log.keepName': 'Save the file name',
+    'log.files.one': '1 file',
+    'log.files.other': '{count} files',
 
     'load.loading': 'Loading…',
     'load.readingPage': 'Reading page {n} of {total}…',
