@@ -338,21 +338,34 @@ async function loadPdf(file, docs, signal) {
   return pages;
 }
 
-/** Draws a page at full resolution onto `target`, resizing it to the page. */
-async function rasterize(page, target) {
+/** Draws a page at full resolution onto `target`, resizing it to the page. Aborting `signal` stops a PDF render midway. */
+async function rasterize(page, target, signal) {
   const ctx = whiteCanvas(target, page.pxWidth, page.pxHeight);
   if (page.pdf) {
     const pdfPage = await page.pdf.getPage(page.pageNumber);
     try {
+      signal?.throwIfAborted();
       const viewport = pdfPage.getViewport({ scale: page.scale });
-      await pdfPage.render({ canvasContext: ctx, viewport, background: '#ffffff' }).promise;
+      const task = pdfPage.render({ canvasContext: ctx, viewport, background: '#ffffff' });
+      const cancel = () => task.cancel();
+      signal?.addEventListener('abort', cancel);
+      try {
+        await task.promise;
+      } finally {
+        signal?.removeEventListener('abort', cancel);
+      }
     } finally {
       pdfPage.cleanup();
     }
   } else {
+    // Decoding can't be interrupted, but a superseded image is not drawn.
     const img = await decodeImage(page.file, target.width, target.height);
-    ctx.drawImage(img, 0, 0, target.width, target.height);
-    img.close?.();
+    try {
+      signal?.throwIfAborted();
+      ctx.drawImage(img, 0, 0, target.width, target.height);
+    } finally {
+      img.close?.();
+    }
   }
   return target;
 }
@@ -506,22 +519,27 @@ let scrollToPreview = false;
 
 // Raster of the page shown in the preview, so option changes don't re-render the PDF.
 // Only one page is kept: memory stays flat whatever the page count.
-let previewRaster = { page: null, promise: null, busyTimer: 0 };
+let previewRaster = { page: null, promise: null, canvas: null, controller: null, busyTimer: 0 };
 
 function dropPreviewRaster() {
   clearTimeout(previewRaster.busyTimer);
-  previewRaster.promise?.then(releaseCanvas, () => {});
-  previewRaster = { page: null, promise: null, busyTimer: 0 };
+  // A render still in progress is cancelled, so fast page turns don't render every page they skip.
+  previewRaster.controller?.abort();
+  const { canvas } = previewRaster;
+  previewRaster.promise?.catch(() => {}).then(() => releaseCanvas(canvas));
+  previewRaster = { page: null, promise: null, canvas: null, controller: null, busyTimer: 0 };
   setBusy(null, 'preview');
 }
 
 function previewRasterFor(page) {
   if (previewRaster.page !== page) {
     dropPreviewRaster();
-    const promise = rasterize(page, document.createElement('canvas'));
+    const canvas = document.createElement('canvas');
+    const controller = new AbortController();
+    const promise = rasterize(page, canvas, controller.signal);
     // Only show the spinner for slow pages, so quick page turns don't flicker.
     const busyTimer = setTimeout(() => setBusy(t('preview.rendering'), 'preview'), 150);
-    previewRaster = { page, promise, busyTimer };
+    previewRaster = { page, promise, canvas, controller, busyTimer };
     promise.finally(() => {
       if (previewRaster.promise !== promise) return;
       clearTimeout(busyTimer);
