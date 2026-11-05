@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.3.0](https://github.com/kijart/safe-mark-doc/compare/1.2.0...1.3.0) (2026-11-05)
+
+
+### Features
+
+* **a11y:** edit redaction areas with the keyboard ([ac35728](https://github.com/kijart/safe-mark-doc/commit/ac357287f4cb4c75c1db2098293f2280b5193125))
+* **log:** make saving the file name in the copy log optional ([6c43ff7](https://github.com/kijart/safe-mark-doc/commit/6c43ff7c04f9c4272a73b3afa14c116f259a9a6a))
+
+
+### Bug Fixes
+
+* let the latest file load win over earlier ones ([ae9b362](https://github.com/kijart/safe-mark-doc/commit/ae9b362276096965df35b6f6063a9d1a84447c3e))
+* **share:** clear shared files on every start and survive failed ones ([c528e15](https://github.com/kijart/safe-mark-doc/commit/c528e1582f65d8911ed824d69a4f4ec839b66785))
+
+
+### Performance
+
+* **load:** decode large images at their final size ([b4ad4bc](https://github.com/kijart/safe-mark-doc/commit/b4ad4bc40302f29d1cfb6ccc68417835a9ae345c))
+* **preview:** cancel renders of pages no longer shown ([d46a6da](https://github.com/kijart/safe-mark-doc/commit/d46a6dac0b7e65b8545700d8b063a855a4b2781c))
+
 ## [1.2.0](https://github.com/kijart/safe-mark-doc/compare/1.1.0...1.2.0) (2026-11-04)
 
 
