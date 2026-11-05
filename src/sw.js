@@ -79,21 +79,28 @@ async function cacheFirst(request) {
   }
 }
 
-// Web Share Target: stash incoming files, then hand off to the app page.
+// Web Share Target: stash incoming files, then hand off to the app page. The redirect happens
+// even if the share can't be read, so the app opens and reports it instead of an error page.
 async function receiveSharedFiles(request) {
-  const data = await request.formData();
-  const cache = await caches.open(SHARE_CACHE);
-  for (const key of await cache.keys()) await cache.delete(key);
-  const files = data.getAll('files').filter((f) => f instanceof File);
-  await Promise.all(
-    files.map((file, i) =>
-      cache.put(
-        new Request(`shared/${i}`),
-        new Response(file, {
-          headers: { 'Content-Type': file.type, 'X-File-Name': encodeURIComponent(file.name) },
-        }),
+  try {
+    await caches.delete(SHARE_CACHE);
+    const data = await request.formData();
+    const cache = await caches.open(SHARE_CACHE);
+    const files = data.getAll('files').filter((f) => f instanceof File);
+    await Promise.all(
+      files.map((file, i) =>
+        cache.put(
+          new Request(`shared/${i}`),
+          new Response(file, {
+            headers: { 'Content-Type': file.type, 'X-File-Name': encodeURIComponent(file.name) },
+          }),
+        ),
       ),
-    ),
-  );
+    );
+  } catch (err) {
+    console.error(err);
+    // Don't leave half a share behind.
+    await caches.delete(SHARE_CACHE).catch(() => {});
+  }
   return Response.redirect(new URL('./?shared=1', self.registration.scope).href, 303);
 }

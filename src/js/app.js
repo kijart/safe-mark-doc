@@ -992,23 +992,30 @@ function updateNetStatus() {
 // ---------- Share target (files shared to the installed app) ----------
 
 async function consumeSharedFiles() {
-  const params = new URLSearchParams(location.search);
-  if (!params.has('shared') || !('caches' in window)) return;
-  history.replaceState(null, '', location.pathname);
+  if (!('caches' in window)) return;
+  const shared = new URLSearchParams(location.search).has('shared');
+  if (shared) history.replaceState(null, '', location.pathname);
+  let files = [];
   try {
-    const cache = await caches.open(SHARE_CACHE);
-    const requests = await cache.keys();
-    const files = [];
-    for (const req of requests) {
-      const res = await cache.match(req);
-      const name = decodeURIComponent(res.headers.get('X-File-Name') || t('file.document'));
-      files.push(new File([await res.blob()], name, { type: res.headers.get('Content-Type') || '' }));
-      await cache.delete(req);
-    }
-    if (files.length) await openFiles(files);
+    if (shared) files = await readSharedFiles();
   } catch (err) {
     console.error(err);
   }
+  // Cleared on every start, not only after a share, so files from an interrupted share don't linger.
+  await caches.delete(SHARE_CACHE).catch(() => {});
+  if (files.length) await openFiles(files);
+  else if (shared) toast(t('load.sharedFailed'), true);
+}
+
+async function readSharedFiles() {
+  const cache = await caches.open(SHARE_CACHE);
+  const files = [];
+  for (const req of await cache.keys()) {
+    const res = await cache.match(req);
+    const name = decodeURIComponent(res.headers.get('X-File-Name') || t('file.document'));
+    files.push(new File([await res.blob()], name, { type: res.headers.get('Content-Type') || '' }));
+  }
+  return files;
 }
 
 // ---------- Theme & language ----------
