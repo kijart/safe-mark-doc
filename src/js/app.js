@@ -225,10 +225,11 @@ function fitToA4(width, height) {
   return { ptWidth: width * s, ptHeight: height * s };
 }
 
-async function decodeImage(file) {
+/** Decodes an image at `width`×`height`; browsers that support it scale while decoding instead of after. */
+async function decodeImage(file, width, height) {
   if ('createImageBitmap' in window) {
     try {
-      return await createImageBitmap(file, { imageOrientation: 'from-image' });
+      return await createImageBitmap(file, { imageOrientation: 'from-image', resizeWidth: width, resizeHeight: height, resizeQuality: 'high' });
     } catch {
       /* fall back to <img>, e.g. for formats only the element decodes */
     }
@@ -244,16 +245,29 @@ async function decodeImage(file) {
   }
 }
 
+/** Reads an image's size (already rotated by its EXIF orientation) without decoding its pixels. */
+async function readImageSize(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = () => reject(new Error(t('load.unsupported')));
+      img.src = url;
+    });
+    return { width: img.naturalWidth, height: img.naturalHeight };
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 /**
- * Reads the image size only; the pixels are decoded again when the page is rasterized.
+ * Reads the image size only; the pixels are decoded, already downscaled, when the page is rasterized.
  * The compressed bytes are copied so later renders don't depend on the file staying on disk.
  */
 async function loadImage(file) {
   const blob = new Blob([await file.arrayBuffer()], { type: file.type });
-  const img = await decodeImage(blob);
-  const iw = img.naturalWidth ?? img.width;
-  const ih = img.naturalHeight ?? img.height;
-  img.close?.();
+  const { width: iw, height: ih } = await readImageSize(blob);
   const s = fitScale(iw, ih);
   const pxWidth = Math.round(iw * s);
   const pxHeight = Math.round(ih * s);
@@ -336,7 +350,7 @@ async function rasterize(page, target) {
       pdfPage.cleanup();
     }
   } else {
-    const img = await decodeImage(page.file);
+    const img = await decodeImage(page.file, target.width, target.height);
     ctx.drawImage(img, 0, 0, target.width, target.height);
     img.close?.();
   }
