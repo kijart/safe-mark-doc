@@ -534,7 +534,7 @@ input[type="radio"] {
   padding: 0;
 }
 
-.m-swatches button.is-active {
+.m-swatches button[aria-pressed="true"] {
   box-shadow: 0 0 0 2px var(--accent);
 }
 

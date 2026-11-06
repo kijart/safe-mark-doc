@@ -269,7 +269,7 @@ Then add a matching `<option>` to the language selector in `src/index.html`.
   | Esc                 | Clear the selection                                        |
 
 - For screen readers, the preview is labelled, described by the redaction hint and the shortcuts, and announces which area is selected.
-- Known gaps: loading and export progress is not announced, errors are announced politely instead of as alerts, and the color swatches don't expose which one is selected.
+- Loading and export progress, results and page changes are announced politely, and errors as alerts. The color swatches expose which one is selected.
 
 ## Browser support
 

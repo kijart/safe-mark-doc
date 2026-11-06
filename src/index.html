@@ -159,7 +159,7 @@
         <h2 data-i18n="preview.title">Vista previa</h2>
         <div class="m-pager" id="pager" hidden>
           <button type="button" class="a-btn a-btn--small a-btn--ghost" id="prev-page" data-i18n-attr="aria-label:preview.prev">‹</button>
-          <span id="page-label"></span>
+          <span id="page-label" aria-live="polite"></span>
           <button type="button" class="a-btn a-btn--small a-btn--ghost" id="next-page" data-i18n-attr="aria-label:preview.next">›</button>
         </div>
         <button type="button" class="a-btn a-btn--small a-btn--ghost" id="clear-btn" hidden data-i18n="preview.clear">Quitar</button>
@@ -217,6 +217,8 @@
     </form>
   </dialog>
 
-  <div id="toast" class="o-toast" role="status" aria-live="polite"></div>
+  <div id="toast" class="o-toast" aria-hidden="true"></div>
+  <p id="announce-status" class="u-visually-hidden" role="status"></p>
+  <p id="announce-alert" class="u-visually-hidden" role="alert"></p>
 </body>
 </html>

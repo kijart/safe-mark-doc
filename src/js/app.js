@@ -57,6 +57,8 @@ const ui = {
   netStatus: $('net-status'),
   installBtn: $('install-btn'),
   toast: $('toast'),
+  announceStatus: $('announce-status'),
+  announceAlert: $('announce-alert'),
   passwordDialog: $('password-dialog'),
   passwordForm: $('password-form'),
   passwordMessage: $('password-message'),
@@ -195,7 +197,7 @@ function syncLabels() {
   ui.traceCode.textContent = state.traceCode;
   ui.traceRow.hidden = !ui.optTrace.checked;
   for (const btn of ui.swatches.children) {
-    btn.classList.toggle('is-active', btn.dataset.color.toLowerCase() === ui.color.value.toLowerCase());
+    btn.setAttribute('aria-pressed', String(btn.dataset.color.toLowerCase() === ui.color.value.toLowerCase()));
   }
 }
 
@@ -1002,16 +1004,37 @@ function renderLog() {
 
 // Labels by owner ('export', 'load' or 'preview'), so a load, an export and the preview don't clear each other.
 const busyLabels = new Map();
+const PROGRESS_ANNOUNCE_MS = 1500;
+let lastProgressAnnounced = 0;
+
 function setBusy(label, owner) {
   if (label) busyLabels.set(owner, label);
   else busyLabels.delete(owner);
   const current = busyLabels.get('export') ?? busyLabels.get('load') ?? busyLabels.get('preview');
+  // Loading and export progress is read out, at most every few seconds so long documents don't queue
+  // hundreds of messages. Page turns already announce the page label.
+  if (current && current !== busyLabels.get('preview') && (ui.busy.hidden || current !== ui.busyLabel.textContent)) {
+    const now = performance.now();
+    if (ui.busy.hidden || now - lastProgressAnnounced >= PROGRESS_ANNOUNCE_MS) {
+      lastProgressAnnounced = now;
+      announce(current);
+    }
+  }
   if (current) ui.busyLabel.textContent = current;
   ui.busy.hidden = !current;
 }
 
+/** Reads `message` out to screen readers: errors interrupt, anything else waits its turn. */
+function announce(message, urgent = false) {
+  const region = urgent ? ui.announceAlert : ui.announceStatus;
+  // Emptied first so a message repeated word for word is read again.
+  region.textContent = '';
+  setTimeout(() => (region.textContent = message), 100);
+}
+
 let toastTimer;
 function toast(message, isError = false) {
+  announce(message, isError);
   ui.toast.textContent = message;
   ui.toast.classList.toggle('is-error', isError);
   ui.toast.classList.add('is-visible');
