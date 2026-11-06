@@ -4,8 +4,7 @@ on:
   push:
     branches: [master]
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}
@@ -13,7 +12,7 @@ concurrency:
 
 jobs:
   release-please:
-    name: Release Please
+    name: Release please
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

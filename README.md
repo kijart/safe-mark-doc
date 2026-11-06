@@ -119,13 +119,14 @@ Releases are automated with [Release Please](https://github.com/googleapis/relea
 
 - a `!` after the type (`feat!:`, `fix!:`…) or a `BREAKING CHANGE:` footer at the end of the commit message bumps **MAJOR**;
 - `feat:` bumps **MINOR**;
-- any other type (`fix`, `perf`, `refactor`, `style`, `docs`, `test`, `build`, `ci`, `chore`, `revert`) bumps **PATCH**.
+- `fix:`, `perf:` and `revert:` bump **PATCH**;
+- the rest (`refactor`, `style`, `docs`, `test`, `build`, `ci`, `chore`) are hidden from the changelog and don't make a release on their own; they ship with the next one.
 
 Every push to `master` updates a release PR (`chore(release): x.y.z`) that bumps `VERSION` in `src/sw.js`, `version.txt` and `.release-please-manifest.json`, and adds the new section to [CHANGELOG.md](CHANGELOG.md). Merging it tags the commit `x.y.z` and creates the GitHub release with those notes. The tag deploys that version to GitHub Pages and publishes its [container images](#container-images).
 
 To release a specific version instead, add a `Release-As: x.y.z` footer to a commit.
 
-The configuration is in `release-please-config.json`. Every commit type shows up in the changelog, so every type also makes a release.
+The configuration is in `release-please-config.json`, where `changelog-sections` sets which types show up in the changelog (and so make a release).
 
 One-time setup in the repository (tags pushed with the default `GITHUB_TOKEN` would not trigger the deploy workflows, so the [Release Please](.github/workflows/release-please.yml) workflow uses a GitHub App token):
 
