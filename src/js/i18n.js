@@ -290,7 +290,7 @@ const MESSAGES = {
 
 const LOCALES = { es: 'es-ES', en: 'en-GB' };
 
-let current = 'es';
+let current = 'en';
 
 export function detectLanguage() {
   const preferred = navigator.languages ?? [navigator.language];
@@ -302,7 +302,7 @@ export function detectLanguage() {
 }
 
 export function setLanguage(lang) {
-  current = LANGUAGES.includes(lang) ? lang : 'es';
+  current = LANGUAGES.includes(lang) ? lang : 'en';
   document.documentElement.lang = current;
 }
 
@@ -315,9 +315,9 @@ export function getLocale() {
   return LOCALES[current];
 }
 
-/** Translates `key`, replacing `{name}` placeholders with `vars`. Falls back to Spanish, then the key. */
+/** Translates `key`, replacing `{name}` placeholders with `vars`. Falls back to English, then the key. */
 export function t(key, vars = {}) {
-  const template = MESSAGES[current][key] ?? MESSAGES.es[key] ?? key;
+  const template = MESSAGES[current][key] ?? MESSAGES.en[key] ?? key;
   return template.replace(/\{(\w+)\}/g, (match, name) => (name in vars ? String(vars[name]) : match));
 }
 

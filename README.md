@@ -47,7 +47,7 @@ Sending a plain copy of your ID to a landlord, a hotel or an online service make
 - **Safe output** — the result is flattened (rasterized) and stripped of EXIF metadata. Export to PDF, JPG or PNG.
 - **Sharing** — native share sheet (Web Share API) and Android _share target_, so you can send files to the app straight from other apps.
 - **Works offline** — installable; after the first visit everything is cached by a service worker.
-- **Localized** — English and Spanish UI (auto-detected from the browser), with light, dark and automatic themes.
+- **Localized** — English and Spanish UI (auto-detected from the browser, English otherwise), with light, dark and automatic themes.
 
 ## Getting started
 
@@ -247,6 +247,8 @@ In `src/js/i18n.js`:
 3. Add the language code to `LANGUAGES`.
 
 Then add a matching `<option>` to the language selector in `src/index.html`.
+
+English is the base language: missing strings fall back to it, and the static text in `index.html` (shown before the script runs) is in English.
 
 ## Privacy
 

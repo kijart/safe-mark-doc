@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Safe Mark Doc</title>
-  <meta name="description" data-i18n-attr="content:meta.description" content="Añade marcas de agua resistentes a tu DNI, contratos o facturas antes de compartirlos. Sin subir nada: todo ocurre en tu dispositivo.">
+  <meta name="description" data-i18n-attr="content:meta.description" content="Add tamper-resistant watermarks to your ID, contracts or invoices before sharing them. Nothing is uploaded: everything happens on your device.">
   <meta name="theme-color" content="#0f766e">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
@@ -28,13 +28,13 @@
       <img src="icons/favicon.svg" alt="" width="32" height="32">
       <div>
         <h1>Safe Mark Doc</h1>
-        <p data-i18n="app.tagline">Marcas de agua para documentos que compartes</p>
+        <p data-i18n="app.tagline">Watermarks for the documents you share</p>
       </div>
     </div>
     <div class="o-topbar__actions">
       <span id="net-status" class="a-pill" data-i18n-attr="title:top.netTitle"></span>
       <label class="m-lang-select">
-        <span class="u-visually-hidden" data-i18n="top.language">Idioma</span>
+        <span class="u-visually-hidden" data-i18n="top.language">Language</span>
         <select id="lang-select">
           <option value="es">ES</option>
           <option value="en">EN</option>
@@ -45,53 +45,53 @@
         <svg class="a-icon-btn__icon--light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         <svg class="a-icon-btn__icon--dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
       </button>
-      <button id="install-btn" class="a-btn a-btn--ghost" hidden data-i18n="top.install">Instalar app</button>
+      <button id="install-btn" class="a-btn a-btn--ghost" hidden data-i18n="top.install">Install app</button>
     </div>
   </header>
 
   <div id="update-bar" class="o-update-bar" role="status" hidden>
-    <span data-i18n="update.available">Hay una nueva versión disponible.</span>
-    <button type="button" id="update-btn" class="a-btn a-btn--small a-btn--primary" data-i18n="update.reload">Actualizar</button>
+    <span data-i18n="update.available">A new version is available.</span>
+    <button type="button" id="update-btn" class="a-btn a-btn--small a-btn--primary" data-i18n="update.reload">Update</button>
   </div>
 
   <main class="t-layout">
     <section class="o-panel t-layout__controls" data-i18n-attr="aria-label:controls.aria">
       <div class="a-privacy" data-i18n-html="privacy">
-        <strong>100&nbsp;% local.</strong> Tus archivos nunca salen de este dispositivo: no hay servidor, ni cuentas, ni subidas.
+        <strong>100% local.</strong> Your files never leave this device: no server, no accounts, no uploads.
       </div>
 
       <label class="m-dropzone" id="dropzone">
         <input id="file-input" type="file" accept="image/*,application/pdf" multiple>
-        <span class="m-dropzone__title" data-i18n="drop.title">Arrastra aquí tu documento</span>
-        <span class="m-dropzone__sub" data-i18n="drop.sub">o pulsa para elegir · JPG, PNG, WEBP o PDF · también puedes pegar (Ctrl+V)</span>
+        <span class="m-dropzone__title" data-i18n="drop.title">Drop your document here</span>
+        <span class="m-dropzone__sub" data-i18n="drop.sub">or tap to choose · JPG, PNG, WEBP or PDF · you can also paste (Ctrl+V)</span>
       </label>
 
       <fieldset>
-        <legend data-i18n="text.legend">Texto de la marca</legend>
+        <legend data-i18n="text.legend">Watermark text</legend>
         <label class="m-field">
-          <span data-i18n="text.label">¿Para quién y para qué?</span>
-          <input id="wm-text" type="text" maxlength="120" data-i18n-attr="placeholder:text.placeholder" placeholder="Ej.: Solo para Banco X · apertura de cuenta">
+          <span data-i18n="text.label">Who is it for, and why?</span>
+          <input id="wm-text" type="text" maxlength="120" data-i18n-attr="placeholder:text.placeholder" placeholder="E.g.: Only for Bank X · account opening">
         </label>
         <div class="m-chips" id="presets" data-i18n-attr="aria-label:presets.aria">
-          <button type="button" class="a-chip" data-preset="identity" data-i18n="preset.identity.label">Verificación de identidad</button>
-          <button type="button" class="a-chip" data-preset="rental" data-i18n="preset.rental.label">Alquiler</button>
-          <button type="button" class="a-chip" data-preset="bank" data-i18n="preset.bank.label">Banco</button>
-          <button type="button" class="a-chip" data-preset="job" data-i18n="preset.job.label">Empleo</button>
-          <button type="button" class="a-chip" data-preset="copy" data-i18n="preset.copy.label">Copia no válida</button>
+          <button type="button" class="a-chip" data-preset="identity" data-i18n="preset.identity.label">Identity check</button>
+          <button type="button" class="a-chip" data-preset="rental" data-i18n="preset.rental.label">Rental</button>
+          <button type="button" class="a-chip" data-preset="bank" data-i18n="preset.bank.label">Bank</button>
+          <button type="button" class="a-chip" data-preset="job" data-i18n="preset.job.label">Job</button>
+          <button type="button" class="a-chip" data-preset="copy" data-i18n="preset.copy.label">Invalid copy</button>
         </div>
         <div class="m-toggles">
-          <label class="m-check"><input id="opt-date" type="checkbox" checked> <span data-i18n="opt.date">Añadir fecha</span></label>
-          <label class="m-check"><input id="opt-trace" type="checkbox" checked> <span data-i18n="opt.trace">Código de rastreo</span></label>
+          <label class="m-check"><input id="opt-date" type="checkbox" checked> <span data-i18n="opt.date">Add date</span></label>
+          <label class="m-check"><input id="opt-trace" type="checkbox" checked> <span data-i18n="opt.trace">Tracking code</span></label>
         </div>
         <div class="m-trace-row" id="trace-row">
           <code id="trace-code" data-i18n-attr="title:trace.title"></code>
-          <button type="button" class="a-btn a-btn--small a-btn--ghost" id="trace-regen" data-i18n="trace.regen">Nuevo código</button>
+          <button type="button" class="a-btn a-btn--small a-btn--ghost" id="trace-regen" data-i18n="trace.regen">New code</button>
         </div>
-        <p class="a-hint" data-i18n="trace.hint">Usa un código distinto para cada destinatario: si aparece una copia filtrada sabrás de dónde salió.</p>
+        <p class="a-hint" data-i18n="trace.hint">Use a different code for each recipient: if a copy leaks, you will know where it came from.</p>
       </fieldset>
 
       <fieldset>
-        <legend data-i18n="look.legend">Aspecto</legend>
+        <legend data-i18n="look.legend">Appearance</legend>
         <div class="m-row">
           <label class="m-field m-field--color">
             <span data-i18n="look.color">Color</span>
@@ -106,25 +106,25 @@
           </div>
         </div>
         <label class="m-field m-field--range">
-          <span><span data-i18n="look.opacity">Opacidad</span> <output id="out-opacity"></output></span>
+          <span><span data-i18n="look.opacity">Opacity</span> <output id="out-opacity"></output></span>
           <input id="wm-opacity" type="range" min="10" max="80" value="32">
         </label>
         <label class="m-field m-field--range">
-          <span><span data-i18n="look.size">Tamaño del texto</span> <output id="out-size"></output></span>
+          <span><span data-i18n="look.size">Text size</span> <output id="out-size"></output></span>
           <input id="wm-size" type="range" min="2" max="9" step="0.5" value="4">
         </label>
         <label class="m-field m-field--range">
-          <span><span data-i18n="look.density">Densidad</span> <output id="out-density"></output></span>
+          <span><span data-i18n="look.density">Density</span> <output id="out-density"></output></span>
           <input id="wm-density" type="range" min="1" max="5" value="3">
         </label>
         <label class="m-field m-field--range">
-          <span><span data-i18n="look.angle">Ángulo</span> <output id="out-angle"></output></span>
+          <span><span data-i18n="look.angle">Angle</span> <output id="out-angle"></output></span>
           <input id="wm-angle" type="range" min="-60" max="60" value="-30">
         </label>
       </fieldset>
 
       <fieldset>
-        <legend data-i18n="protect.legend">Protección</legend>
+        <legend data-i18n="protect.legend">Protection</legend>
         <label class="m-check m-check--block">
           <input id="opt-wave" type="checkbox" checked>
           <span data-i18n-html="protect.wave"></span>
@@ -141,40 +141,40 @@
       </fieldset>
 
       <fieldset>
-        <legend data-i18n="export.legend">Exportar</legend>
+        <legend data-i18n="export.legend">Export</legend>
         <div class="m-segmented" id="format" role="radiogroup" data-i18n-attr="aria-label:export.format">
           <label><input type="radio" name="format" value="pdf"> PDF</label>
           <label><input type="radio" name="format" value="jpeg" checked> JPG</label>
           <label><input type="radio" name="format" value="png"> PNG</label>
         </div>
         <div class="m-actions">
-          <button type="button" class="a-btn a-btn--primary" id="download-btn" disabled data-i18n="export.download">Descargar</button>
-          <button type="button" class="a-btn" id="share-btn" disabled hidden data-i18n="export.share">Compartir…</button>
+          <button type="button" class="a-btn a-btn--primary" id="download-btn" disabled data-i18n="export.download">Download</button>
+          <button type="button" class="a-btn" id="share-btn" disabled hidden data-i18n="export.share">Share…</button>
         </div>
       </fieldset>
     </section>
 
     <section class="o-panel t-layout__preview" data-i18n-attr="aria-label:preview.aria">
       <div class="o-panel__head">
-        <h2 data-i18n="preview.title">Vista previa</h2>
+        <h2 data-i18n="preview.title">Preview</h2>
         <div class="m-pager" id="pager" hidden>
           <button type="button" class="a-btn a-btn--small a-btn--ghost" id="prev-page" data-i18n-attr="aria-label:preview.prev">‹</button>
           <span id="page-label" aria-live="polite"></span>
           <button type="button" class="a-btn a-btn--small a-btn--ghost" id="next-page" data-i18n-attr="aria-label:preview.next">›</button>
         </div>
-        <button type="button" class="a-btn a-btn--small a-btn--ghost" id="clear-btn" hidden data-i18n="preview.clear">Quitar</button>
+        <button type="button" class="a-btn a-btn--small a-btn--ghost" id="clear-btn" hidden data-i18n="preview.clear">Remove</button>
       </div>
       <div class="o-redact-bar" id="redact-bar" hidden>
-        <span class="o-redact-bar__label" data-i18n="redact.label">Ocultar datos</span>
+        <span class="o-redact-bar__label" data-i18n="redact.label">Hide data</span>
         <div class="m-segmented m-segmented--compact" id="redact-mode" role="radiogroup" data-i18n-attr="aria-label:redact.aria">
-          <label data-i18n-attr="title:redact.none.title"><input type="radio" name="redact" value="none" checked> <span data-i18n="redact.none">Ver</span></label>
-          <label data-i18n-attr="title:redact.box.title"><input type="radio" name="redact" value="box"> <span data-i18n="redact.box">Tapar</span></label>
-          <label data-i18n-attr="title:redact.blur.title"><input type="radio" name="redact" value="blur"> <span data-i18n="redact.blur">Desenfocar</span></label>
-          <label data-i18n-attr="title:redact.pixelate.title"><input type="radio" name="redact" value="pixelate"> <span data-i18n="redact.pixelate">Pixelar</span></label>
+          <label data-i18n-attr="title:redact.none.title"><input type="radio" name="redact" value="none" checked> <span data-i18n="redact.none">View</span></label>
+          <label data-i18n-attr="title:redact.box.title"><input type="radio" name="redact" value="box"> <span data-i18n="redact.box">Cover</span></label>
+          <label data-i18n-attr="title:redact.blur.title"><input type="radio" name="redact" value="blur"> <span data-i18n="redact.blur">Blur</span></label>
+          <label data-i18n-attr="title:redact.pixelate.title"><input type="radio" name="redact" value="pixelate"> <span data-i18n="redact.pixelate">Pixelate</span></label>
         </div>
         <div class="o-redact-bar__actions">
-          <button type="button" class="a-btn a-btn--small a-btn--ghost" id="redact-undo" disabled data-i18n="redact.undo">Deshacer</button>
-          <button type="button" class="a-btn a-btn--small a-btn--ghost a-btn--danger" id="redact-delete" disabled data-i18n="redact.delete">Eliminar zona</button>
+          <button type="button" class="a-btn a-btn--small a-btn--ghost" id="redact-undo" disabled data-i18n="redact.undo">Undo</button>
+          <button type="button" class="a-btn a-btn--small a-btn--ghost a-btn--danger" id="redact-delete" disabled data-i18n="redact.delete">Delete area</button>
         </div>
       </div>
       <p class="a-hint a-hint--redact" id="redact-hint" aria-live="polite" hidden></p>
@@ -182,37 +182,37 @@
       <div class="o-stage" id="stage">
         <div class="m-empty" id="empty">
           <svg viewBox="0 0 120 90" aria-hidden="true"><rect x="6" y="8" width="108" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="34" cy="38" r="12" fill="none" stroke="currentColor" stroke-width="3"/><path d="M20 66c4-9 24-9 28 0M60 32h40M60 44h32M60 56h36" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M8 70 112 20" stroke="currentColor" stroke-width="2" stroke-dasharray="4 5" opacity=".6"/></svg>
-          <p data-i18n="preview.empty">Elige un documento para ver aquí cómo quedará.</p>
+          <p data-i18n="preview.empty">Choose a document to see how it will look.</p>
         </div>
         <canvas id="preview-canvas" tabindex="0" role="application" aria-describedby="redact-hint redact-keys" data-i18n-attr="aria-label:redact.canvas" hidden></canvas>
-        <div class="m-busy" id="busy" hidden><span class="a-spinner"></span><span id="busy-label" data-i18n="busy.default">Procesando…</span></div>
+        <div class="m-busy" id="busy" hidden><span class="a-spinner"></span><span id="busy-label" data-i18n="busy.default">Processing…</span></div>
       </div>
     </section>
 
     <section class="o-panel t-layout__log" data-i18n-attr="aria-label:log.aria">
       <div class="o-panel__head">
-        <h2 data-i18n="log.title">Registro de copias</h2>
-        <button type="button" class="a-btn a-btn--small a-btn--ghost" id="log-clear" hidden data-i18n="log.clear">Borrar registro</button>
+        <h2 data-i18n="log.title">Copy log</h2>
+        <button type="button" class="a-btn a-btn--small a-btn--ghost" id="log-clear" hidden data-i18n="log.clear">Clear log</button>
       </div>
-      <p class="a-hint" data-i18n="log.hint">Se guarda solo en este navegador. Te ayuda a saber a quién diste cada código.</p>
-      <label class="m-check m-check--log"><input id="log-keep-name" type="checkbox"> <span data-i18n="log.keepName">Guardar el nombre del archivo</span></label>
+      <p class="a-hint" data-i18n="log.hint">Stored only in this browser. It helps you remember who got each code.</p>
+      <label class="m-check m-check--log"><input id="log-keep-name" type="checkbox"> <span data-i18n="log.keepName">Save the file name</span></label>
       <ul id="log-list" class="o-log-list"></ul>
     </section>
   </main>
 
   <footer class="o-site-footer">
-    <a href="https://github.com/kijart/safe-mark-doc" target="_blank" rel="noopener noreferrer" data-i18n="footer.source">Código fuente en GitHub</a>
+    <a href="https://github.com/kijart/safe-mark-doc" target="_blank" rel="noopener noreferrer" data-i18n="footer.source">Source code on GitHub</a>
     <span id="app-version" class="o-site-footer__version" hidden></span>
   </footer>
 
   <dialog id="password-dialog" class="o-dialog" aria-labelledby="password-title" aria-describedby="password-message">
     <form id="password-form" method="dialog">
-      <h2 id="password-title" data-i18n="password.title">PDF protegido</h2>
+      <h2 id="password-title" data-i18n="password.title">Protected PDF</h2>
       <p id="password-message" class="o-dialog__message"></p>
       <input id="password-input" type="password" autocomplete="off" required data-i18n-attr="aria-label:password.label">
       <div class="m-actions o-dialog__actions">
-        <button type="button" id="password-cancel" class="a-btn" data-i18n="password.cancel">Cancelar</button>
-        <button type="submit" class="a-btn a-btn--primary" data-i18n="password.open">Abrir</button>
+        <button type="button" id="password-cancel" class="a-btn" data-i18n="password.cancel">Cancel</button>
+        <button type="submit" class="a-btn a-btn--primary" data-i18n="password.open">Open</button>
       </div>
     </form>
   </dialog>

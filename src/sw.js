@@ -75,7 +75,8 @@ async function cacheFirst(request) {
   try {
     return await fetch(request);
   } catch {
-    return new Response('Sin conexión', { status: 503, statusText: 'Offline' });
+    // A network error, so the browser shows its own offline page in the user's language.
+    return Response.error();
   }
 }
 
