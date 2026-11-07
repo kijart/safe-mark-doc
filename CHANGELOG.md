@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://github.com/kijart/safe-mark-doc/compare/1.3.0...1.4.0) (2026-11-07)
+
+
+### Features
+
+* **a11y:** announce progress and errors and expose the selected color ([2d3dea5](https://github.com/kijart/safe-mark-doc/commit/2d3dea59ed829a8d71c1aaf1a91e4b886d63cac0))
+
+
+### Bug Fixes
+
+* **i18n:** use English as the base language and a neutral offline response ([aa4964c](https://github.com/kijart/safe-mark-doc/commit/aa4964cfe6a3ac5145caab12b80552e6f841d647))
+
 ## [1.3.0](https://github.com/kijart/safe-mark-doc/compare/1.2.0...1.3.0) (2026-11-05)
 
 
