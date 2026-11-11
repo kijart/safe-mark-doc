@@ -70,6 +70,7 @@ const MESSAGES = {
 
     'export.legend': 'Exportar',
     'export.format': 'Formato',
+    'export.keepName': 'Conservar el nombre original del archivo',
     'export.download': 'Descargar',
     'export.share': 'Compartir…',
 
@@ -212,6 +213,7 @@ const MESSAGES = {
 
     'export.legend': 'Export',
     'export.format': 'Format',
+    'export.keepName': 'Keep the original file name',
     'export.download': 'Download',
     'export.share': 'Share…',
 

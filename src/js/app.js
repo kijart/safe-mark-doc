@@ -54,6 +54,7 @@ const ui = {
   logList: $('log-list'),
   logClear: $('log-clear'),
   logKeepName: $('log-keep-name'),
+  exportKeepName: $('export-keep-name'),
   netStatus: $('net-status'),
   installBtn: $('install-btn'),
   toast: $('toast'),
@@ -169,6 +170,7 @@ function savePrefs() {
     guilloche: ui.optGuilloche.checked,
     micro: ui.optMicro.checked,
     logKeepName: ui.logKeepName.checked,
+    exportKeepName: ui.exportKeepName.checked,
   });
 }
 
@@ -187,6 +189,7 @@ function loadPrefs() {
   ui.optGuilloche.checked = p.guilloche ?? true;
   ui.optMicro.checked = p.micro ?? true;
   ui.logKeepName.checked = p.logKeepName ?? false;
+  ui.exportKeepName.checked = p.exportKeepName ?? false;
 }
 
 function syncLabels() {
@@ -844,7 +847,9 @@ async function exportFiles() {
   const format = getFormat();
   const options = getOptions();
   const suffix = options.code ? `${t('file.suffix')}-${options.code}` : t('file.suffix');
-  const base = `${slug(state.sourceName) || t('file.document')}-${suffix}`;
+  // The original name often contains a person's name, so the copy only carries it on request.
+  const name = ui.exportKeepName.checked ? slug(state.sourceName) : '';
+  const base = `${name || t('file.document')}-${suffix}`;
   const pages = state.pages;
   exportDocs = state.docs;
   // One canvas reused for every page, so only one full-size page is in memory at a time.
@@ -1208,6 +1213,7 @@ function bindEvents() {
   ui.downloadBtn.addEventListener('click', handleDownload);
   ui.shareBtn.addEventListener('click', handleShare);
   ui.logKeepName.addEventListener('change', savePrefs);
+  ui.exportKeepName.addEventListener('change', savePrefs);
   ui.logClear.addEventListener('click', () => {
     if (!confirm(t('log.confirmClear'))) return;
     writeJson(LOG_KEY, []);
