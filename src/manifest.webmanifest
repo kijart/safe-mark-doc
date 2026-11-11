@@ -2,7 +2,6 @@
   "name": "Safe Mark Doc — watermarks for your documents",
   "short_name": "SafeMark",
   "description": "Add tamper-resistant watermarks to your ID, contracts and invoices before sharing them. Everything is processed on your device and works offline.",
-  "id": "./",
   "lang": "en",
   "start_url": "./",
   "scope": "./",
