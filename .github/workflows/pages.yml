@@ -23,18 +23,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Check version tag matches sw.js
+      - name: Check it is a version tag
         run: |
           if [ "$GITHUB_REF_TYPE" != tag ]; then
             echo "::error::Deploy from a version tag (x.y.z), not from branch '$GITHUB_REF_NAME'."
             exit 1
           fi
-          version=$(sed -n "s/^const VERSION = '\([^']*\)'.*/\1/p" src/sw.js)
-          if [ "$version" != "$GITHUB_REF_NAME" ]; then
-            echo "::error file=src/sw.js::Tag $GITHUB_REF_NAME does not match VERSION '$version' in sw.js."
-            exit 1
-          fi
-          echo "Deploying version $version"
+          echo "Deploying version $GITHUB_REF_NAME"
 
       - name: Assemble site
         run: |

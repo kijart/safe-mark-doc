@@ -137,9 +137,8 @@ One-time setup in the repository (tags pushed with the default `GITHUB_TOKEN` wo
 
 The [Deploy to GitHub Pages](.github/workflows/pages.yml) workflow runs on every `x.y.z` tag. It:
 
-1. fails if the tag does not match `VERSION` in `src/sw.js`, so a release can never ship with a stale offline cache;
-2. publishes only the app files (no `README.md` or `tools/`);
-3. deploys with the official Pages actions, pinned to commit SHAs and with the minimum permissions needed.
+1. publishes only the app files (no `README.md` or `tools/`);
+2. deploys with the official Pages actions, pinned to commit SHAs and with the minimum permissions needed.
 
 To redeploy an existing version, run the workflow manually (**Actions → Deploy to GitHub Pages → Run workflow**) and choose the version tag in **Use workflow from**. Runs from a branch are rejected.
 
@@ -178,9 +177,8 @@ Every tag is a multi-architecture image, so Docker and Podman pull the right var
 
 On every run, the workflow:
 
-1. fails if a version tag does not match `VERSION` in `src/sw.js`, like the Pages workflow;
-2. builds the image and runs a smoke test (the container starts, passes its health check and serves the app) before pushing anything;
-3. pushes every platform with OCI labels and annotations (source, version, revision, license), an SBOM and a build provenance attestation, using actions pinned to commit SHAs.
+1. builds the image and runs a smoke test (the container starts, passes its health check and serves the app) before pushing anything;
+2. pushes every platform with OCI labels and annotations (source, version, revision, license), an SBOM and a build provenance attestation, using actions pinned to commit SHAs.
 
 One-time setup in the repository:
 
