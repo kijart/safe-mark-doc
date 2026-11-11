@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0](https://github.com/kijart/safe-mark-doc/compare/1.3.0...1.4.0) (2026-11-11)
+
+
+### Features
+
+* **a11y:** announce progress and errors and expose the selected color ([2d3dea5](https://github.com/kijart/safe-mark-doc/commit/2d3dea59ed829a8d71c1aaf1a91e4b886d63cac0))
+* **pwa:** open files with the installed app and complete the manifest ([b8f723a](https://github.com/kijart/safe-mark-doc/commit/b8f723a1f2052ecf89e6074a6ef903bde0c1cc6f))
+* **security:** enforce the CSP on every host ([60e8319](https://github.com/kijart/safe-mark-doc/commit/60e831945e71d969441db4a160d4430b98e1b35b))
+
+
+### Bug Fixes
+
+* **export:** give exported files a neutral name unless asked to keep the original ([5f7f069](https://github.com/kijart/safe-mark-doc/commit/5f7f069c0c97d05e7b460a76660d8ff06972c360))
+* **i18n:** use English as the base language and a neutral offline response ([aa4964c](https://github.com/kijart/safe-mark-doc/commit/aa4964cfe6a3ac5145caab12b80552e6f841d647))
+
 ## [1.3.0](https://github.com/kijart/safe-mark-doc/compare/1.2.0...1.3.0) (2026-11-05)
 
 
