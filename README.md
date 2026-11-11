@@ -209,6 +209,7 @@ One-time setup in the repository:
 │   └── vendor/
 │       └── pdfjs/         # pdf.js 4.10.38, used to read PDFs
 ├── LICENSE                # MIT license (also published with the app)
+├── SECURITY.md            # How to report a vulnerability privately
 ├── CHANGELOG.md           # Release notes, written by Release Please
 ├── release-please-config.json     # Release Please configuration
 ├── .release-please-manifest.json  # Current version, updated by Release Please
@@ -271,6 +272,7 @@ Without inline styles allowed, set styles from JavaScript (`element.style`) or i
 - Preferences and the trace log are stored in the browser's `localStorage` only (the log keeps the latest 200 entries and can be cleared from the UI). The log saves the code, purpose, date and number of files; the exported file name is saved only when **Save the file name** is checked.
 - Exported files get a neutral name (`document-watermark-<code>.pdf`), because the original one often contains a person's name; it is kept only when **Keep the original file name** is checked.
 - Exported files are re-encoded from pixels, so original metadata (EXIF, PDF properties, hidden text layers) is not carried over.
+- Security problems should be reported privately, as described in [SECURITY.md](SECURITY.md).
 
 ## Accessibility
 
