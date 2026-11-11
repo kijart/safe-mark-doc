@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/kijart/safe-mark-doc/compare/1.4.0...1.4.1) (2026-11-11)
+
+
+### Bug Fixes
+
+* **pwa:** keep the app id of existing installs on GitHub Pages ([0acbb33](https://github.com/kijart/safe-mark-doc/commit/0acbb33a79c9d82188633768f0c0bef532cbebf9))
+
 ## [1.4.0](https://github.com/kijart/safe-mark-doc/compare/1.3.0...1.4.0) (2026-11-11)
 
 
