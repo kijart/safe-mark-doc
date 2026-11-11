@@ -1058,6 +1058,21 @@ function updateNetStatus() {
   ui.netStatus.classList.toggle('is-offline', !online);
 }
 
+// ---------- File handling (files opened with the installed app, desktop Chromium) ----------
+
+function consumeLaunchedFiles() {
+  if (!('launchQueue' in window)) return;
+  window.launchQueue.setConsumer(async ({ files }) => {
+    if (!files?.length) return;
+    try {
+      await openFiles(await Promise.all(files.map((handle) => handle.getFile())));
+    } catch (err) {
+      console.error(err);
+      toast(t('load.launchFailed'), true);
+    }
+  });
+}
+
 // ---------- Share target (files shared to the installed app) ----------
 
 async function consumeSharedFiles() {
@@ -1304,6 +1319,7 @@ function init() {
   initUiPrefs();
   registerServiceWorker();
   consumeSharedFiles();
+  consumeLaunchedFiles();
 }
 
 init();

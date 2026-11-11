@@ -46,7 +46,8 @@ Sending a plain copy of your ID to a landlord, a hotel or an online service make
 - **Hard-to-remove patterns** — wavy text with per-letter variation, alternating filled/outlined rows, guilloché-style background mesh and microtext.
 - **Redaction** — cover, blur or pixelate sensitive areas by dragging over the preview or with the keyboard, page by page.
 - **Safe output** — the result is flattened (rasterized) and stripped of EXIF metadata. Export to PDF, JPG or PNG.
-- **Sharing** — native share sheet (Web Share API) and Android _share target_, so you can send files to the app straight from other apps.
+- **Sharing** — native share sheet (Web Share API) and Android _share target_, so you can send files to the app straight from other apps. Sharing while the app is open reuses its window.
+- **Open with** — once installed on a computer (Chrome, Edge), PDFs and images can be opened with the app from the file manager.
 - **Works offline** — installable; after the first visit everything is cached by a service worker.
 - **Localized** — English and Spanish UI (auto-detected from the browser, English otherwise), with light, dark and automatic themes.
 
@@ -204,6 +205,7 @@ One-time setup in the repository:
 │   │   ├── pdf-writer.js  # Minimal PDF writer (one JPEG per page)
 │   │   └── i18n.js        # UI strings and language handling
 │   ├── icons/             # PWA icons and favicon
+│   ├── screenshots/       # Shown by the browser when installing the app
 │   └── vendor/
 │       └── pdfjs/         # pdf.js 4.10.38, used to read PDFs
 ├── LICENSE                # MIT license (also published with the app)
@@ -289,7 +291,7 @@ Without inline styles allowed, set styles from JavaScript (`element.style`) or i
 
 ## Browser support
 
-Any modern evergreen browser (Chrome, Edge, Firefox, Safari). Large images are downscaled to stay within mobile canvas limits (notably iOS Safari). The share target is only available when the app is installed on Android.
+Any modern evergreen browser (Chrome, Edge, Firefox, Safari). Large images are downscaled to stay within mobile canvas limits (notably iOS Safari). The share target is only available when the app is installed on Android, and opening files from the file manager when it is installed with Chrome or Edge on a computer.
 
 ## Third-party software
 
