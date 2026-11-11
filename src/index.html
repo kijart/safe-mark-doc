@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-SOkTy9/9OgmfgG5jYBqHfkcarbmCTaWzUJ3GbNUOKh4='; style-src 'self'; img-src 'self' blob: data:; font-src 'self' blob: data:; worker-src 'self' blob:; connect-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Safe Mark Doc</title>
   <meta name="description" data-i18n-attr="content:meta.description" content="Add tamper-resistant watermarks to your ID, contracts or invoices before sharing them. Nothing is uploaded: everything happens on your device.">
@@ -98,11 +99,11 @@
             <input id="wm-color" type="color" value="#c0262d">
           </label>
           <div class="m-swatches" id="swatches">
-            <button type="button" style="--c:#c0262d" data-color="#c0262d" data-i18n-attr="aria-label:color.red"></button>
-            <button type="button" style="--c:#1d4ed8" data-color="#1d4ed8" data-i18n-attr="aria-label:color.blue"></button>
-            <button type="button" style="--c:#111827" data-color="#111827" data-i18n-attr="aria-label:color.black"></button>
-            <button type="button" style="--c:#6b7280" data-color="#6b7280" data-i18n-attr="aria-label:color.gray"></button>
-            <button type="button" style="--c:#0f766e" data-color="#0f766e" data-i18n-attr="aria-label:color.green"></button>
+            <button type="button" data-color="#c0262d" data-i18n-attr="aria-label:color.red"></button>
+            <button type="button" data-color="#1d4ed8" data-i18n-attr="aria-label:color.blue"></button>
+            <button type="button" data-color="#111827" data-i18n-attr="aria-label:color.black"></button>
+            <button type="button" data-color="#6b7280" data-i18n-attr="aria-label:color.gray"></button>
+            <button type="button" data-color="#0f766e" data-i18n-attr="aria-label:color.green"></button>
           </div>
         </div>
         <label class="m-field m-field--range">

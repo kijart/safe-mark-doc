@@ -27,6 +27,7 @@ Everything runs in your browser. There is no server, no upload and no tracking: 
 - [Development](#development)
   - [Regenerating icons](#regenerating-icons)
   - [Adding a language](#adding-a-language)
+  - [Content Security Policy](#content-security-policy)
 - [Privacy](#privacy)
 - [Accessibility](#accessibility)
 - [Browser support](#browser-support)
@@ -91,13 +92,11 @@ docker run -d --rm -p 127.0.0.1:8080:8080 --read-only \
 The container only serves the static files — documents are still processed in your browser and never reach it. It also:
 
 - runs as a non-root user, with a read-only filesystem and no Linux capabilities (Compose sets this up for you);
-- sends a Content Security Policy that only allows connections to the app's own origin, plus other security headers;
+- sends the app's [Content Security Policy](#content-security-policy) as a header too, adding `frame-ancestors 'none'` (so the app can't be embedded in other sites), plus other security headers;
 - serves `index.html`, `sw.js` and `manifest.webmanifest` with `Cache-Control: no-cache`, so a new version is picked up right away;
 - exposes `/healthz` for the built-in health check.
 
 The port is bound to `127.0.0.1` because service workers — offline mode, installing the app and the share target — only work on `localhost` or over HTTPS. To use it from other devices, put an HTTPS reverse proxy in front of the container rather than publishing plain HTTP.
-
-> The CSP allows the small inline script in `src/index.html` by its hash. If you change that script, update the hash in `container/nginx/conf.d/default.conf` (the command is in the comment above it).
 
 ## Deployment
 
@@ -250,9 +249,23 @@ Then add a matching `<option>` to the language selector in `src/index.html`.
 
 English is the base language: missing strings fall back to it, and the static text in `index.html` (shown before the script runs) is in English.
 
+### Content Security Policy
+
+The policy is a `<meta http-equiv="Content-Security-Policy">` in `src/index.html`, so it also applies on GitHub Pages and other static hosts that send no CSP. It only allows the app's own origin, without inline styles or scripts.
+
+The container repeats it as a header in `container/nginx/conf.d/default.conf`, which adds `frame-ancestors 'none'` (not allowed in a `<meta>`) and also covers the service worker and the pdf.js worker. Keep both copies the same.
+
+The small inline script in `src/index.html` (theme and language before the first paint) is allowed by its hash. If you change it, recompute the hash and update it in both places:
+
+```sh
+python3 -c "import re,hashlib,base64;s=re.search(r'<script>(.*?)</script>',open('src/index.html').read(),re.S).group(1);print(base64.b64encode(hashlib.sha256(s.encode()).digest()).decode())"
+```
+
+Without inline styles allowed, set styles from JavaScript (`element.style`) or in `src/css/styles.css`, not with `style="…"` attributes.
+
 ## Privacy
 
-- Files are processed locally with the Canvas API; nothing is sent over the network.
+- Files are processed locally with the Canvas API; nothing is sent over the network. The [Content Security Policy](#content-security-policy) makes the browser block connections to any other origin.
 - Preferences and the trace log are stored in the browser's `localStorage` only (the log keeps the latest 200 entries and can be cleared from the UI). The log saves the code, purpose, date and number of files; the exported file name is saved only when **Save the file name** is checked.
 - Exported files get a neutral name (`document-watermark-<code>.pdf`), because the original one often contains a person's name; it is kept only when **Keep the original file name** is checked.
 - Exported files are re-encoded from pixels, so original metadata (EXIF, PDF properties, hidden text layers) is not carried over.

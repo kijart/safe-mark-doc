@@ -1177,6 +1177,8 @@ function bindEvents() {
     onOptionsChanged();
   });
 
+  // Set from here because the CSP blocks inline style attributes.
+  for (const btn of ui.swatches.children) btn.style.setProperty('--c', btn.dataset.color);
   ui.swatches.addEventListener('click', (e) => {
     const color = e.target.closest('[data-color]')?.dataset.color;
     if (!color) return;
