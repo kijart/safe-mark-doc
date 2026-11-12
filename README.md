@@ -9,9 +9,9 @@
 [![Deploy to GitHub Pages](https://github.com/kijart/safe-mark-doc/actions/workflows/pages.yml/badge.svg)](https://github.com/kijart/safe-mark-doc/actions/workflows/pages.yml)
 [![Publish container image](https://github.com/kijart/safe-mark-doc/actions/workflows/publish-image.yml/badge.svg)](https://github.com/kijart/safe-mark-doc/actions/workflows/publish-image.yml)
 
-An offline-first Progressive Web App that adds tamper-resistant watermarks to sensitive documents — ID cards, passports, contracts, invoices — before you share them.
+An offline-first Progressive Web App that adds tamper-resistant watermarks to sensitive documents — ID cards, passports, contracts, invoices — before sharing them.
 
-Everything runs in your browser. There is no server, no upload and no tracking: your files never leave your device.
+Everything runs in the browser. There is no server, no upload and no tracking: files never leave the device.
 
 ## Table of contents <!-- omit in toc -->
 
@@ -37,7 +37,7 @@ Everything runs in your browser. There is no server, no upload and no tracking: 
 
 ## Why
 
-Sending a plain copy of your ID to a landlord, a hotel or an online service makes identity fraud easy. A visible watermark that states **who** the copy is for, **when** it was made and **what** it may be used for makes the copy far less useful to anyone else. Safe Mark Doc makes that quick and private.
+Sending a plain copy of an ID to a landlord, a hotel or an online service makes identity fraud easy. A visible watermark that states **who** the copy is for, **when** it was made and **what** it may be used for makes the copy far less useful to anyone else. Safe Mark Doc makes that quick and private.
 
 ## Features
 
@@ -46,7 +46,7 @@ Sending a plain copy of your ID to a landlord, a hotel or an online service make
 - **Hard-to-remove patterns** — wavy text with per-letter variation, alternating filled/outlined rows, guilloché-style background mesh and microtext.
 - **Redaction** — cover, blur or pixelate sensitive areas by dragging over the preview or with the keyboard, page by page.
 - **Safe output** — the result is flattened (rasterized) and stripped of EXIF metadata. Export to PDF, JPG or PNG.
-- **Sharing** — native share sheet (Web Share API) and Android _share target_, so you can send files to the app straight from other apps. Sharing while the app is open reuses its window.
+- **Sharing** — native share sheet (Web Share API) and Android _share target_, so files can be sent to the app straight from other apps. Sharing while the app is open reuses its window.
 - **Open with** — once installed on a computer (Chrome, Edge), PDFs and images can be opened with the app from the file manager.
 - **Works offline** — installable; after the first visit everything is cached by a service worker.
 - **Localized** — English and Spanish UI (auto-detected from the browser, English otherwise), with light, dark and automatic themes.
@@ -90,9 +90,9 @@ docker run -d --rm -p 127.0.0.1:8080:8080 --read-only \
   --security-opt no-new-privileges ghcr.io/kijart/safe-mark-doc:latest
 ```
 
-The container only serves the static files — documents are still processed in your browser and never reach it. It also:
+The container only serves the static files — documents are still processed in the browser and never reach it. It also:
 
-- runs as a non-root user, with a read-only filesystem and no Linux capabilities (Compose sets this up for you);
+- runs as a non-root user, with a read-only filesystem and no Linux capabilities (Compose sets this up);
 - sends the app's [Content Security Policy](#content-security-policy) as a header too, adding `frame-ancestors 'none'` (so the app can't be embedded in other sites), plus other security headers;
 - serves `index.html`, `sw.js` and `manifest.webmanifest` with `Cache-Control: no-cache`, so a new version is picked up right away;
 - exposes `/healthz` for the built-in health check.
@@ -103,7 +103,7 @@ The port is bound to `127.0.0.1` because service workers — offline mode, insta
 
 The app is deployed to GitHub Pages and published as a container image automatically when a version is released (see below). It can also be hosted on any static host with HTTPS (Netlify, Cloudflare Pages, …): upload the app files listed in [Project structure](#project-structure).
 
-> **Important:** every release must bump `VERSION` in `src/sw.js` so installed clients pick up the new cache. [Release Please](#versioning) does it for you; don't edit it by hand.
+> **Important:** every release must bump `VERSION` in `src/sw.js` so installed clients pick up the new cache. [Release Please](#versioning) does it, so it is never edited by hand.
 
 The service worker serves every file from the cache of its own version, so a page never mixes files from two releases. A new version downloads in the background and waits: open pages show "A new version is available" with an **Update** button, which switches to it and reloads. Until then, the version in use keeps working, also offline.
 
@@ -183,7 +183,7 @@ On every run, the workflow:
 One-time setup in the repository:
 
 1. Create a Docker Hub [access token](https://docs.docker.com/security/for-developers/access-tokens/) with **Read & Write** permission.
-2. **Settings → Secrets and variables → Actions:** add the variable `DOCKERHUB_USERNAME` (your Docker Hub user, on the **Variables** tab) and the secret `DOCKERHUB_TOKEN` (the token, on the **Secrets** tab).
+2. **Settings → Secrets and variables → Actions:** add the variable `DOCKERHUB_USERNAME` (the Docker Hub user name, on the **Variables** tab) and the secret `DOCKERHUB_TOKEN` (the token, on the **Secrets** tab).
 3. After the first run, open the package on GitHub (**Packages → safe-mark-doc → Package settings**) and change its visibility to **Public**, so the image can be pulled without logging in. GHCR uses the workflow's `GITHUB_TOKEN`, so it needs no secret.
 
 ## Project structure
@@ -256,7 +256,7 @@ The policy is a `<meta http-equiv="Content-Security-Policy">` in `src/index.html
 
 The container repeats it as a header in `container/nginx/conf.d/default.conf`, which adds `frame-ancestors 'none'` (not allowed in a `<meta>`) and also covers the service worker and the pdf.js worker. Keep both copies the same.
 
-The small inline script in `src/index.html` (theme and language before the first paint) is allowed by its hash. If you change it, recompute the hash and update it in both places:
+The small inline script in `src/index.html` (theme and language before the first paint) is allowed by its hash. Whenever it changes, recompute the hash and update it in both places:
 
 ```sh
 python3 -c "import re,hashlib,base64;s=re.search(r'<script>(.*?)</script>',open('src/index.html').read(),re.S).group(1);print(base64.b64encode(hashlib.sha256(s.encode()).digest()).decode())"
