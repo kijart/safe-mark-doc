@@ -1,0 +1,27 @@
+# Safe Mark Doc
+
+> Free, open source web app that adds tamper-resistant watermarks to sensitive documents (ID cards, passports, contracts, invoices) before sharing them. Everything runs in the browser: there is no server, no upload and no tracking, and it works offline once installed.
+
+A watermark states who a copy is for, when it was made and what it may be used for, which makes the copy far less useful for identity fraud. Main features:
+
+- Images (JPG, PNG, WebP…) and PDFs, including password-protected and multi-page PDFs.
+- Watermark text with presets (identity check, rental, bank, job), an optional date in several formats and an optional trace code per copy, recorded in a local log to trace a leaked copy back to its recipient.
+- Hard-to-remove patterns: wavy text, guilloché-style mesh and microtext.
+- Redaction of sensitive areas: cover, blur or pixelate.
+- Flattened output without metadata, exported to PDF, JPG or PNG, or shared with the system share sheet.
+- Installable Progressive Web App in English and Spanish, with light and dark themes.
+
+## App
+
+- [Safe Mark Doc](https://kijart.github.io/safe-mark-doc/): the app, in the browser's language ([English](https://kijart.github.io/safe-mark-doc/?lang=en), [Spanish](https://kijart.github.io/safe-mark-doc/?lang=es))
+
+## Docs
+
+- [README](https://github.com/kijart/safe-mark-doc/blob/master/README.md): features, privacy, browser support, self-hosting with Docker or Podman, development
+- [Security policy](https://github.com/kijart/safe-mark-doc/blob/master/SECURITY.md): supported versions and private vulnerability reporting
+- [Contributing](https://github.com/kijart/safe-mark-doc/blob/master/CONTRIBUTING.md): translations, commit conventions, pull requests
+
+## Optional
+
+- [Source code](https://github.com/kijart/safe-mark-doc): MIT license
+- [Changelog](https://github.com/kijart/safe-mark-doc/blob/master/CHANGELOG.md): release notes

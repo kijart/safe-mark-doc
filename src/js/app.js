@@ -12,6 +12,8 @@ const LOG_KEY = 'ms-log-v1';
 const UI_KEY = 'ms-ui-v1'; // theme + language; also read by the inline script in index.html
 const THEMES = ['auto', 'light', 'dark'];
 const SHARE_CACHE = 'share-target';
+// Public address of the app: canonical link and link previews (index.html), also in self-hosted copies.
+const SITE_URL = 'https://kijart.github.io/safe-mark-doc/';
 const TRACE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I ambiguity
 /** `Intl` options per date format; `iso` (2026-11-05) is built by hand. Month names follow the UI language. */
 const DATE_FORMATS = {
@@ -1158,14 +1160,40 @@ function applyLanguage(lang) {
   renderPreview(); // the default watermark text and date format depend on the language
 }
 
+// `?lang=es` opens the app in that language (links, search results) without saving it as a preference.
+function urlLanguage() {
+  const lang = new URLSearchParams(location.search).get('lang');
+  return LANGUAGES.includes(lang) ? lang : null;
+}
+
+// Each language URL is its own canonical page, so search engines can index every language (see hreflang in index.html).
+function setCanonical() {
+  let link = document.querySelector('link[rel="canonical"]');
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'canonical';
+    document.head.append(link);
+  }
+  const lang = urlLanguage();
+  link.href = lang ? `${SITE_URL}?lang=${lang}` : SITE_URL;
+}
+
 function initUiPrefs() {
   const prefs = readJson(UI_KEY, {});
   state.theme = THEMES.includes(prefs.theme) ? prefs.theme : 'auto';
-  applyLanguage(LANGUAGES.includes(prefs.lang) ? prefs.lang : detectLanguage());
+  applyLanguage(urlLanguage() ?? (LANGUAGES.includes(prefs.lang) ? prefs.lang : detectLanguage()));
+  setCanonical();
 
   ui.langSelect.addEventListener('change', () => {
     applyLanguage(ui.langSelect.value);
     saveUiPrefs();
+    // Keep a `?lang=` in the address in step with the selector, so a reload doesn't switch back.
+    if (urlLanguage()) {
+      const url = new URL(location.href);
+      url.searchParams.set('lang', getLanguage());
+      history.replaceState(null, '', url);
+      setCanonical();
+    }
   });
   ui.themeBtn.addEventListener('click', () => {
     applyTheme(THEMES[(THEMES.indexOf(state.theme) + 1) % THEMES.length]);

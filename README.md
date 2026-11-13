@@ -32,6 +32,7 @@ Everything runs in the browser. There is no server, no upload and no tracking: f
 - [Development](#development)
   - [Regenerating icons](#regenerating-icons)
   - [Regenerating screenshots](#regenerating-screenshots)
+  - [Search engines and link previews](#search-engines-and-link-previews)
   - [Content Security Policy](#content-security-policy)
 - [Privacy](#privacy)
 - [Accessibility](#accessibility)
@@ -55,7 +56,7 @@ Sending a plain copy of an ID to a landlord, a hotel or an online service makes 
 - **Sharing** — native share sheet (Web Share API) and Android _share target_, so files can be sent to the app straight from other apps. Sharing while the app is open reuses its window.
 - **Open with** — once installed on a computer (Chrome, Edge), PDFs and images can be opened with the app from the file manager.
 - **Works offline** — installable; after the first visit everything is cached by a service worker.
-- **Localized** — English and Spanish UI (auto-detected from the browser, English otherwise), with light, dark and automatic themes. New languages are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Localized** — English and Spanish UI (auto-detected from the browser, English otherwise; `?lang=es` in the address opens a given language), with light, dark and automatic themes. New languages are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Getting started
 
@@ -209,7 +210,8 @@ One-time setup in the repository:
 │   │   ├── pdf-writer.js  # Minimal PDF writer (one JPEG per page)
 │   │   └── i18n.js        # UI strings and language handling
 │   ├── icons/             # PWA icons and favicon
-│   ├── screenshots/       # Shown by the browser when installing the app
+│   ├── llms.txt           # Summary of the app for language models
+│   ├── screenshots/       # Shown when installing the app; link preview image
 │   └── vendor/
 │       └── pdfjs/         # pdf.js 4.10.38, used to read PDFs
 ├── LICENSE                # MIT license (also published with the app)
@@ -250,12 +252,18 @@ node tools/make-icons.mjs
 
 ### Regenerating screenshots
 
-The screenshots in the manifest (`src/screenshots/`) and in this README (`docs/screenshots/`, light and dark) are taken from the app with an invented sample ID card, a fixed date and a fixed trace code, so they only change when the UI does. Regenerate them after visible UI changes. The script drives the installed Google Chrome with Playwright:
+The screenshots in the manifest, the link preview image (`src/screenshots/`) and the ones in this README (`docs/screenshots/`, light and dark) are taken from the app with an invented sample ID card, a fixed date and a fixed trace code, so they only change when the UI does. Regenerate them after visible UI changes. The script drives the installed Google Chrome with Playwright:
 
 ```sh
 npm install --no-save playwright-core
 node tools/make-screenshots.mjs
 ```
+
+### Search engines and link previews
+
+`src/index.html` describes the app for search engines and for the previews shown when a link is shared (Open Graph, JSON-LD), and links each language version (`?lang=en`, `?lang=es`) with `hreflang`. `app.js` adds the canonical link for the language in the address. `src/llms.txt` summarizes the app and its docs for language models.
+
+These use the GitHub Pages address (`SITE_URL` in `app.js`), also in self-hosted copies, so search engines treat Pages as the original. If the address changes, update it in those three files. A new language needs its own `hreflang` link.
 
 ### Content Security Policy
 

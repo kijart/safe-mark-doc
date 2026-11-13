@@ -1,4 +1,5 @@
-// Generates the app screenshots: the ones in the manifest (src/screenshots/) and the README ones (docs/screenshots/).
+// Generates the app screenshots: the ones in the manifest and the link preview image (src/screenshots/), and the README
+// ones (docs/screenshots/).
 // The document is an invented sample ID card drawn here, and the date and trace code are fixed, so the images
 // only change when the UI does.
 // Usage: npm install --no-save playwright-core && node tools/make-screenshots.mjs (uses the installed Google Chrome)
@@ -133,6 +134,39 @@ for (const colorScheme of ['light', 'dark']) {
   const { png, page, context } = await shoot({ colorScheme, width: 1280, height: 800, scale: 2 });
   write(`docs/screenshots/${colorScheme}.webp`, await toWebp(page, png));
   await context.close();
+}
+
+// Link preview (og:image in index.html, also the repository's social preview): 1200×630 with the watermarked
+// preview next to the app's name and promise.
+{
+  const { page, context } = await shoot({ colorScheme: 'light', width: 1280, height: 800, scale: 2 });
+  const preview = (await page.locator('#stage canvas').screenshot()).toString('base64');
+  await context.close();
+  const logo = readFileSync(new URL('icons/favicon.svg', ROOT)).toString('base64');
+  const social = await browser.newPage({ viewport: { width: 1200, height: 630 } });
+  await social.setContent(`<!doctype html>
+    <style>
+      body { margin: 0; width: 1200px; height: 630px; display: flex; align-items: center; gap: 44px; padding: 0 60px;
+        box-sizing: border-box; overflow: hidden; font-family: system-ui, sans-serif; color: #fff;
+        background: linear-gradient(135deg, #0f766e, #134e4a); }
+      .text { flex: 0 0 470px; }
+      .brand { display: flex; align-items: center; gap: 14px; font-size: 30px; font-weight: 700; }
+      .brand img { border-radius: 13px; box-shadow: 0 0 0 2px rgba(255, 255, 255, .45); }
+      h1 { font-size: 50px; line-height: 1.08; margin: 34px 0 20px; letter-spacing: -0.01em; }
+      p { font-size: 23px; line-height: 1.4; margin: 0; color: #d5f0ec; }
+      .tags { margin-top: 30px; font-size: 19px; font-weight: 600; color: #99d6cd; }
+      img.card { width: 540px; border-radius: 22px; box-shadow: 0 24px 60px rgba(0, 0, 0, .35); transform: rotate(-3deg); }
+    </style>
+    <div class="text">
+      <div class="brand"><img src="data:image/svg+xml;base64,${logo}" width="56" height="56" alt="">Safe Mark Doc</div>
+      <h1>Watermark your ID before sharing it</h1>
+      <p>Say who each copy is for, add the date and a trace code.</p>
+      <div class="tags">100% in the browser · Nothing is uploaded · Free</div>
+    </div>
+    <img class="card" src="data:image/png;base64,${preview}" alt="">`);
+  await social.waitForLoadState('load');
+  write('src/screenshots/social.png', await social.screenshot());
+  await social.close();
 }
 
 await browser.close();

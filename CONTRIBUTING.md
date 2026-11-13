@@ -28,9 +28,11 @@ Find the key in the language's dictionary in `MESSAGES` and change only its text
    1. Copy the `en` dictionary in `MESSAGES` under the new language code (two letters, ISO 639-1, e.g. `fr`) and translate every string.
    2. Add the code to `LANGUAGES`.
    3. Add its locale to `LOCALES` (e.g. `fr: 'fr-FR'`), used to format dates and numbers.
-2. In `src/index.html`, add a matching `<option>` to the language selector (`<option value="fr">FR</option>`).
+2. In `src/index.html`:
+   1. Add a matching `<option>` to the language selector (`<option value="fr">FR</option>`).
+   2. Add an `hreflang` link next to the others in `<head>` (`<link rel="alternate" hreflang="fr" href="https://kijart.github.io/safe-mark-doc/?lang=fr">`), so search engines find the new version.
 
-The app starts in the first of the browser's preferred languages that is in `LANGUAGES`, and in English otherwise; the selector overrides it.
+The app starts in the language given in the address (`?lang=fr`), otherwise in the one chosen in the selector, otherwise in the first of the browser's preferred languages that is in `LANGUAGES`, and in English as a last resort. `?lang=` makes it easy to check a translation.
 
 ### Rules for strings
 

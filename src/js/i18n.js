@@ -4,6 +4,7 @@ export const LANGUAGES = ['es', 'en'];
 
 const MESSAGES = {
   es: {
+    'meta.title': 'Safe Mark Doc · Marca de agua en tu DNI antes de compartirlo',
     'meta.description': 'Añade marcas de agua resistentes a tu DNI, contratos o facturas antes de compartirlos. Sin subir nada: todo ocurre en tu dispositivo.',
     'app.tagline': 'Marcas de agua para documentos que compartes',
     'top.netTitle': 'Estado de conexión',
@@ -150,6 +151,7 @@ const MESSAGES = {
   },
 
   en: {
+    'meta.title': 'Safe Mark Doc · Watermark your ID before sharing it',
     'meta.description': 'Add tamper-resistant watermarks to your ID, contracts or invoices before sharing them. Nothing is uploaded: everything happens on your device.',
     'app.tagline': 'Watermarks for the documents you share',
     'top.netTitle': 'Connection status',
