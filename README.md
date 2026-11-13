@@ -26,13 +26,13 @@ Everything runs in the browser. There is no server, no upload and no tracking: f
 - [Project structure](#project-structure)
 - [Development](#development)
   - [Regenerating icons](#regenerating-icons)
-  - [Adding a language](#adding-a-language)
   - [Content Security Policy](#content-security-policy)
 - [Privacy](#privacy)
 - [Accessibility](#accessibility)
 - [Browser support](#browser-support)
 - [Third-party software](#third-party-software)
 - [AI assistance](#ai-assistance)
+- [Contributing](#contributing)
 - [License](#license)
 
 ## Why
@@ -49,7 +49,7 @@ Sending a plain copy of an ID to a landlord, a hotel or an online service makes 
 - **Sharing** — native share sheet (Web Share API) and Android _share target_, so files can be sent to the app straight from other apps. Sharing while the app is open reuses its window.
 - **Open with** — once installed on a computer (Chrome, Edge), PDFs and images can be opened with the app from the file manager.
 - **Works offline** — installable; after the first visit everything is cached by a service worker.
-- **Localized** — English and Spanish UI (auto-detected from the browser, English otherwise), with light, dark and automatic themes.
+- **Localized** — English and Spanish UI (auto-detected from the browser, English otherwise), with light, dark and automatic themes. New languages are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Getting started
 
@@ -208,6 +208,7 @@ One-time setup in the repository:
 │       └── pdfjs/         # pdf.js 4.10.38, used to read PDFs
 ├── LICENSE                # MIT license (also published with the app)
 ├── SECURITY.md            # How to report a vulnerability privately
+├── CONTRIBUTING.md        # How to contribute: translations, commits, pull requests
 ├── CHANGELOG.md           # Release notes, written by Release Please
 ├── release-please-config.json     # Release Please configuration
 ├── .release-please-manifest.json  # Current version, updated by Release Please
@@ -237,18 +238,6 @@ The PNG icons are generated without external dependencies (Node.js 18+):
 ```sh
 node tools/make-icons.mjs
 ```
-
-### Adding a language
-
-In `src/js/i18n.js`:
-
-1. Add a dictionary to `MESSAGES`.
-2. Add its locale to `LOCALES`.
-3. Add the language code to `LANGUAGES`.
-
-Then add a matching `<option>` to the language selector in `src/index.html`.
-
-English is the base language: missing strings fall back to it, and the static text in `index.html` (shown before the script runs) is in English.
 
 ### Content Security Policy
 
@@ -300,6 +289,10 @@ Any modern evergreen browser (Chrome, Edge, Firefox, Safari). Large images are d
 ## AI assistance
 
 This project was developed with the help of AI coding assistants, used to generate and refactor code. All code has been manually reviewed and tested; the design, decisions and responsibility remain with the author.
+
+## Contributing
+
+Contributions are welcome, especially translations: new languages or fixes to existing strings. [CONTRIBUTING.md](CONTRIBUTING.md) explains how to add a language, the rules for strings and the commit conventions that drive releases.
 
 ## License
 
