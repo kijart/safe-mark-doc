@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/kijart/safe-mark-doc/compare/1.4.1...1.5.0) (2026-11-13)
+
+
+### Features
+
+* **seo:** add link previews, language URLs and llms.txt ([e11e4ed](https://github.com/kijart/safe-mark-doc/commit/e11e4ed97294c389a432c8a4ff43094b403a2c7f))
+* **watermark:** choose the date format and optionally include the time ([192b68d](https://github.com/kijart/safe-mark-doc/commit/192b68d52436e06001d071ab63214526c6c49e44))
+
 ## [1.4.1](https://github.com/kijart/safe-mark-doc/compare/1.4.0...1.4.1) (2026-11-11)
 
 
