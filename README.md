@@ -13,6 +13,11 @@ An offline-first Progressive Web App that adds tamper-resistant watermarks to se
 
 Everything runs in the browser. There is no server, no upload and no tracking: files never leave the device.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dark.webp">
+  <img src="docs/screenshots/light.webp" alt="Safe Mark Doc with a sample ID card: the watermark options on the left and the watermarked preview on the right" width="1280">
+</picture>
+
 ## Table of contents <!-- omit in toc -->
 
 - [Why](#why)
@@ -26,6 +31,7 @@ Everything runs in the browser. There is no server, no upload and no tracking: f
 - [Project structure](#project-structure)
 - [Development](#development)
   - [Regenerating icons](#regenerating-icons)
+  - [Regenerating screenshots](#regenerating-screenshots)
   - [Content Security Policy](#content-security-policy)
 - [Privacy](#privacy)
 - [Accessibility](#accessibility)
@@ -213,8 +219,11 @@ One-time setup in the repository:
 ├── release-please-config.json     # Release Please configuration
 ├── .release-please-manifest.json  # Current version, updated by Release Please
 ├── version.txt            # Current version, updated by Release Please
+├── docs/
+│   └── screenshots/       # README screenshots, light and dark (not published with the app)
 ├── tools/
-│   └── make-icons.mjs     # Regenerates the PNG icons
+│   ├── make-icons.mjs     # Regenerates the PNG icons
+│   └── make-screenshots.mjs  # Regenerates the manifest and README screenshots
 ├── Dockerfile             # Container image (Docker/Podman)
 ├── compose.yaml           # Runs the container with Compose
 ├── container/
@@ -237,6 +246,15 @@ The PNG icons are generated without external dependencies (Node.js 18+):
 
 ```sh
 node tools/make-icons.mjs
+```
+
+### Regenerating screenshots
+
+The screenshots in the manifest (`src/screenshots/`) and in this README (`docs/screenshots/`, light and dark) are taken from the app with an invented sample ID card, a fixed date and a fixed trace code, so they only change when the UI does. Regenerate them after visible UI changes. The script drives the installed Google Chrome with Playwright:
+
+```sh
+npm install --no-save playwright-core
+node tools/make-screenshots.mjs
 ```
 
 ### Content Security Policy
