@@ -84,6 +84,18 @@
           <label class="m-check"><input id="opt-date" type="checkbox" checked> <span data-i18n="opt.date">Add date</span></label>
           <label class="m-check"><input id="opt-trace" type="checkbox" checked> <span data-i18n="opt.trace">Tracking code</span></label>
         </div>
+        <div class="m-date-row" id="date-row">
+          <label class="m-inline-field">
+            <span data-i18n="date.format">Date format</span>
+            <select id="date-format" class="a-select">
+              <option value="numeric">05/11/2026</option>
+              <option value="iso">2026-11-05</option>
+              <option value="short">5 Nov 2026</option>
+              <option value="long">5 November 2026</option>
+            </select>
+          </label>
+          <label class="m-check"><input id="opt-time" type="checkbox"> <span data-i18n="opt.time">Include time</span></label>
+        </div>
         <div class="m-trace-row" id="trace-row">
           <code id="trace-code" data-i18n-attr="title:trace.title"></code>
           <button type="button" class="a-btn a-btn--small a-btn--ghost" id="trace-regen" data-i18n="trace.regen">New code</button>

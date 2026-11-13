@@ -165,6 +165,23 @@ input[type="radio"] {
   accent-color: var(--accent);
 }
 
+/* Select */
+.a-select {
+  font: inherit;
+  font-size: .9rem;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.a-select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 /* Button */
 .a-btn {
   font: inherit;
@@ -506,6 +523,22 @@ input[type="radio"] {
 }
 
 /* Trace code and its action */
+/* Date format and time, shown while "Add date" is checked */
+.m-date-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-bottom: 10px;
+}
+
+.m-inline-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .9rem;
+}
+
 .m-trace-row {
   display: flex;
   align-items: center;

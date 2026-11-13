@@ -13,6 +13,12 @@ const UI_KEY = 'ms-ui-v1'; // theme + language; also read by the inline script i
 const THEMES = ['auto', 'light', 'dark'];
 const SHARE_CACHE = 'share-target';
 const TRACE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I ambiguity
+/** `Intl` options per date format; `iso` (2026-11-05) is built by hand. Month names follow the UI language. */
+const DATE_FORMATS = {
+  numeric: { day: '2-digit', month: '2-digit', year: 'numeric' },
+  short: { day: 'numeric', month: 'short', year: 'numeric' },
+  long: { day: 'numeric', month: 'long', year: 'numeric' },
+};
 
 const $ = (id) => document.getElementById(id);
 
@@ -22,6 +28,9 @@ const ui = {
   text: $('wm-text'),
   presets: $('presets'),
   optDate: $('opt-date'),
+  dateRow: $('date-row'),
+  dateFormat: $('date-format'),
+  optTime: $('opt-time'),
   optTrace: $('opt-trace'),
   traceRow: $('trace-row'),
   traceCode: $('trace-code'),
@@ -126,8 +135,14 @@ function newTraceCode() {
   return `${chars.slice(0, 4).join('')}-${chars.slice(4).join('')}`;
 }
 
-function formatDate(date = new Date()) {
-  return date.toLocaleDateString(getLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' });
+function formatDate(format, withTime, date = new Date()) {
+  const pad = (n) => String(n).padStart(2, '0');
+  if (format === 'iso') {
+    const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    return withTime ? `${day} ${pad(date.getHours())}:${pad(date.getMinutes())}` : day;
+  }
+  const day = date.toLocaleDateString(getLocale(), DATE_FORMATS[format] ?? DATE_FORMATS.numeric);
+  return withTime ? `${day} ${date.toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit' })}` : day;
 }
 
 function getFormat() {
@@ -136,7 +151,7 @@ function getFormat() {
 
 function getOptions() {
   const purpose = ui.text.value.trim() || t('text.default');
-  const date = ui.optDate.checked ? formatDate() : '';
+  const date = ui.optDate.checked ? formatDate(ui.dateFormat.value, ui.optTime.checked) : '';
   const code = ui.optTrace.checked ? state.traceCode : '';
   const parts = [purpose, date, code && `${t('trace.prefix')} ${code}`].filter(Boolean);
   return {
@@ -160,6 +175,8 @@ function savePrefs() {
   writeJson(PREFS_KEY, {
     text: ui.text.value,
     date: ui.optDate.checked,
+    dateFormat: ui.dateFormat.value,
+    time: ui.optTime.checked,
     trace: ui.optTrace.checked,
     color: ui.color.value,
     opacity: ui.opacity.value,
@@ -179,6 +196,8 @@ function loadPrefs() {
   if (!p) return;
   ui.text.value = p.text ?? '';
   ui.optDate.checked = p.date ?? true;
+  if ([...ui.dateFormat.options].some((o) => o.value === p.dateFormat)) ui.dateFormat.value = p.dateFormat;
+  ui.optTime.checked = p.time ?? false;
   ui.optTrace.checked = p.trace ?? true;
   ui.color.value = p.color ?? ui.color.value;
   ui.opacity.value = p.opacity ?? ui.opacity.value;
@@ -199,6 +218,9 @@ function syncLabels() {
   ui.outAngle.textContent = `${ui.angle.value}°`;
   ui.traceCode.textContent = state.traceCode;
   ui.traceRow.hidden = !ui.optTrace.checked;
+  ui.dateRow.hidden = !ui.optDate.checked;
+  // Each option shows today's date in its format, in the current language.
+  for (const option of ui.dateFormat.options) option.textContent = formatDate(option.value, false);
   for (const btn of ui.swatches.children) {
     btn.setAttribute('aria-pressed', String(btn.dataset.color.toLowerCase() === ui.color.value.toLowerCase()));
   }
@@ -1204,7 +1226,7 @@ function bindEvents() {
   for (const el of [ui.text, ui.color, ui.opacity, ui.size, ui.density, ui.angle]) {
     el.addEventListener('input', onOptionsChanged);
   }
-  for (const el of [ui.optDate, ui.optTrace, ui.optWave, ui.optGuilloche, ui.optMicro]) {
+  for (const el of [ui.optDate, ui.dateFormat, ui.optTime, ui.optTrace, ui.optWave, ui.optGuilloche, ui.optMicro]) {
     el.addEventListener('change', onOptionsChanged);
   }
 

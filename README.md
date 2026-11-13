@@ -42,7 +42,7 @@ Sending a plain copy of an ID to a landlord, a hotel or an online service makes 
 ## Features
 
 - **Inputs** — images (JPG, PNG, WebP, …) and PDFs, including password-protected PDFs. Multiple files and multi-page documents in one go.
-- **Watermark content** — custom text, optional date and an optional unique trace code per copy. A local log records which code was given to whom, so a leaked copy can be traced back.
+- **Watermark content** — custom text, optional date (in a choice of formats, with or without the time) and an optional unique trace code per copy. A local log records which code was given to whom, so a leaked copy can be traced back.
 - **Hard-to-remove patterns** — wavy text with per-letter variation, alternating filled/outlined rows, guilloché-style background mesh and microtext.
 - **Redaction** — cover, blur or pixelate sensitive areas by dragging over the preview or with the keyboard, page by page.
 - **Safe output** — the result is flattened (rasterized) and stripped of EXIF metadata. Export to PDF, JPG or PNG.
