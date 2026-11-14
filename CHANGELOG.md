@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/kijart/safe-mark-doc/compare/1.5.0...1.6.0) (2026-11-14)
+
+
+### Features
+
+* **onboarding:** welcome first-time visitors with a one-screen overview ([1da4110](https://github.com/kijart/safe-mark-doc/commit/1da4110917a02244cf9056aec8ddae8164c19543))
+
 ## [1.5.0](https://github.com/kijart/safe-mark-doc/compare/1.4.1...1.5.0) (2026-11-13)
 
 
