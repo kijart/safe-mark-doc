@@ -1,5 +1,5 @@
-// Generates the app screenshots: the ones in the manifest and the link preview image (src/screenshots/), and the README
-// ones (docs/screenshots/).
+// Generates the app screenshots: the ones in the manifest and the link preview image (src/screenshots/), the welcome
+// screen image (src/img/), and the README ones (docs/screenshots/).
 // The document is an invented sample ID card drawn here, and the date and trace code are fixed, so the images
 // only change when the UI does.
 // Usage: npm install --no-save playwright-core && node tools/make-screenshots.mjs (uses the installed Google Chrome)
@@ -81,14 +81,19 @@ async function drawCard() {
   return [...new Uint8Array(await blob.arrayBuffer())];
 }
 
-async function toWebp(page, png) {
-  const bytes = await page.evaluate(async (data) => {
+// `width` scales the image down, keeping its proportions.
+async function toWebp(page, png, { width, quality = 0.9 } = {}) {
+  const bytes = await page.evaluate(async ({ data, width, quality }) => {
     const bitmap = await createImageBitmap(new Blob([new Uint8Array(data)], { type: 'image/png' }));
-    const c = new OffscreenCanvas(bitmap.width, bitmap.height);
-    c.getContext('2d').drawImage(bitmap, 0, 0);
-    const blob = await c.convertToBlob({ type: 'image/webp', quality: 0.9 });
+    const w = width ?? bitmap.width;
+    const h = Math.round((bitmap.height * w) / bitmap.width);
+    const c = new OffscreenCanvas(w, h);
+    const g = c.getContext('2d');
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(bitmap, 0, 0, w, h);
+    const blob = await c.convertToBlob({ type: 'image/webp', quality });
     return [...new Uint8Array(await blob.arrayBuffer())];
-  }, [...png]);
+  }, { data: [...png], width, quality });
   return Buffer.from(bytes);
 }
 
@@ -99,14 +104,16 @@ async function shoot({ colorScheme, width, height, scale, scrollTo }) {
   const page = await context.newPage();
   await page.clock.setFixedTime(DATE);
   await page.addInitScript(fixRandom);
+  // The welcome dialog shows on a first visit; the screenshots are of the app behind it.
+  await page.addInitScript(() => localStorage.setItem('ms-ui-v1', JSON.stringify({ welcomed: true })));
   await page.goto(url);
   const card = Buffer.from(await page.evaluate(drawCard));
   await page.setInputFiles('#file-input', { name: 'id-card.png', mimeType: 'image/png', buffer: card });
   await page.waitForFunction(() => !document.querySelector('#download-btn').disabled);
   await page.click('[data-preset="identity"]');
-  // Below the sticky top bar.
-  if (scrollTo) await page.locator(scrollTo).evaluate((el) => window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 70));
   await page.waitForTimeout(500); // let the preview redraw
+  // Below the sticky top bar; after the redraw, which changes the page height.
+  if (scrollTo) await page.locator(scrollTo).evaluate((el) => window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 70));
   const png = await page.screenshot();
   return { png, page, context };
 }
@@ -167,6 +174,14 @@ for (const colorScheme of ['light', 'dark']) {
   await social.waitForLoadState('load');
   write('src/screenshots/social.png', await social.screenshot());
   await social.close();
+}
+
+// Welcome screen image: the watermarked sample card, shown up to 520 px wide (here at 2x).
+{
+  const { page, context } = await shoot({ colorScheme: 'light', width: 1280, height: 800, scale: 2 });
+  const card = await page.locator('#stage canvas').screenshot();
+  write('src/img/welcome.webp', await toWebp(page, card, { width: 1040, quality: 0.7 }));
+  await context.close();
 }
 
 await browser.close();

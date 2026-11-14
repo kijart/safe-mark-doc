@@ -55,6 +55,7 @@ Sending a plain copy of an ID to a landlord, a hotel or an online service makes 
 - **Safe output** — the result is flattened (rasterized) and stripped of EXIF metadata. Export to PDF, JPG or PNG.
 - **Sharing** — native share sheet (Web Share API) and Android _share target_, so files can be sent to the app straight from other apps. Sharing while the app is open reuses its window.
 - **Open with** — once installed on a computer (Chrome, Edge), PDFs and images can be opened with the app from the file manager.
+- **Welcome screen** — first-time visitors see what the app does on one screen (an example of the result and its four main features); the **?** button in the top bar shows it again.
 - **Works offline** — installable; after the first visit everything is cached by a service worker.
 - **Localized** — English and Spanish UI (auto-detected from the browser, English otherwise; `?lang=es` in the address opens a given language), with light, dark and automatic themes. New languages are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -210,6 +211,7 @@ One-time setup in the repository:
 │   │   ├── pdf-writer.js  # Minimal PDF writer (one JPEG per page)
 │   │   └── i18n.js        # UI strings and language handling
 │   ├── icons/             # PWA icons and favicon
+│   ├── img/               # Welcome screen image
 │   ├── llms.txt           # Summary of the app for language models
 │   ├── screenshots/       # Shown when installing the app; link preview image
 │   └── vendor/
@@ -252,7 +254,7 @@ node tools/make-icons.mjs
 
 ### Regenerating screenshots
 
-The screenshots in the manifest, the link preview image (`src/screenshots/`) and the ones in this README (`docs/screenshots/`, light and dark) are taken from the app with an invented sample ID card, a fixed date and a fixed trace code, so they only change when the UI does. Regenerate them after visible UI changes. The script drives the installed Google Chrome with Playwright:
+The screenshots in the manifest, the link preview image (`src/screenshots/`), the welcome screen image (`src/img/`) and the ones in this README (`docs/screenshots/`, light and dark) are taken from the app with an invented sample ID card, a fixed date and a fixed trace code, so they only change when the UI does. Regenerate them after visible UI changes. The script drives the installed Google Chrome with Playwright:
 
 ```sh
 npm install --no-save playwright-core

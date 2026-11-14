@@ -86,6 +86,9 @@ const ui = {
   redactHint: $('redact-hint'),
   langSelect: $('lang-select'),
   themeBtn: $('theme-btn'),
+  helpBtn: $('help-btn'),
+  welcomeDialog: $('welcome-dialog'),
+  welcomeStart: $('welcome-start'),
   themeColor: document.querySelector('meta[name="theme-color"]'),
 };
 
@@ -103,6 +106,8 @@ const state = {
   traceCode: newTraceCode(),
   installPrompt: null,
   theme: 'auto',
+  /** The welcome dialog was already seen (or the app was used before it existed). */
+  welcomed: false,
   redactMode: 'none',
   /** Index of the selected redaction region on the current page, or -1. */
   selected: -1,
@@ -452,6 +457,7 @@ function isPdf(file) {
 let loadController = null;
 
 async function openFiles(fileList) {
+  if (ui.welcomeDialog.open) ui.welcomeDialog.close();
   const files = [...fileList].filter((f) => isPdf(f) || f.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|avif|heic)$/i.test(f.name));
   if (!files.length) {
     toast(t('load.unsupported'), true);
@@ -1129,7 +1135,7 @@ async function readSharedFiles() {
 // ---------- Theme & language ----------
 
 function saveUiPrefs() {
-  writeJson(UI_KEY, { theme: state.theme, lang: getLanguage() });
+  writeJson(UI_KEY, { theme: state.theme, lang: getLanguage(), welcomed: state.welcomed });
 }
 
 function applyTheme(theme) {
@@ -1178,9 +1184,26 @@ function setCanonical() {
   link.href = lang ? `${SITE_URL}?lang=${lang}` : SITE_URL;
 }
 
+// ---------- Welcome ----------
+
+function openWelcome() {
+  if (!ui.welcomeDialog.open) ui.welcomeDialog.showModal();
+  // Focus the main action, but open at the top: on short screens the dialog scrolls and the title would be hidden.
+  ui.welcomeDialog.scrollTop = 0;
+  ui.welcomeStart.focus({ preventScroll: true });
+}
+
+// First visit only, and not when the app opens with shared files: the user is already busy.
+function maybeShowWelcome() {
+  if (state.welcomed || new URLSearchParams(location.search).has('shared')) return;
+  openWelcome();
+}
+
 function initUiPrefs() {
   const prefs = readJson(UI_KEY, {});
   state.theme = THEMES.includes(prefs.theme) ? prefs.theme : 'auto';
+  // Anything already stored means the app was used before: no welcome for existing users.
+  state.welcomed = prefs.welcomed === true || [PREFS_KEY, LOG_KEY, UI_KEY].some((key) => readJson(key, null) !== null);
   applyLanguage(urlLanguage() ?? (LANGUAGES.includes(prefs.lang) ? prefs.lang : detectLanguage()));
   setCanonical();
 
@@ -1194,6 +1217,12 @@ function initUiPrefs() {
       history.replaceState(null, '', url);
       setCanonical();
     }
+  });
+  ui.helpBtn.addEventListener('click', openWelcome);
+  // Closed in any way ("Get started", ✕, Esc, or by loading a file): don't show it again.
+  ui.welcomeDialog.addEventListener('close', () => {
+    state.welcomed = true;
+    saveUiPrefs();
   });
   ui.themeBtn.addEventListener('click', () => {
     applyTheme(THEMES[(THEMES.indexOf(state.theme) + 1) % THEMES.length]);
@@ -1368,6 +1397,7 @@ function init() {
   bindEvents();
   initUiPrefs();
   registerServiceWorker();
+  maybeShowWelcome(); // before consumeSharedFiles, which removes `?shared` from the address
   consumeSharedFiles();
   consumeLaunchedFiles();
 }

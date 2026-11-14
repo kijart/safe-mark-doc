@@ -255,6 +255,7 @@ input[type="radio"] {
   display: none;
 }
 
+.a-icon-btn svg:only-child,
 .a-icon-btn[data-mode="auto"] .a-icon-btn__icon--auto,
 .a-icon-btn[data-mode="light"] .a-icon-btn__icon--light,
 .a-icon-btn[data-mode="dark"] .a-icon-btn__icon--dark {
@@ -874,6 +875,83 @@ input[type="radio"] {
 .o-dialog__actions {
   justify-content: flex-end;
   margin-top: 16px;
+}
+
+/* Welcome: what the app does, shown once to first-time visitors */
+.o-welcome {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+
+.o-welcome form {
+  position: relative;
+}
+
+.o-welcome h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  padding-right: 44px; /* room for the close button */
+}
+
+.o-welcome__close {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.o-welcome__hero {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1040 / 652;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.o-welcome__tiles {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 18px;
+}
+
+.o-welcome__tiles li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.o-welcome__tiles svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--accent);
+}
+
+.o-welcome__tiles p {
+  margin: 0;
+  font-size: .88rem;
+  color: var(--muted);
+}
+
+.o-welcome__tiles strong {
+  color: var(--text);
+}
+
+@media (max-width: 480px) {
+  .o-welcome__tiles {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .o-welcome__hero {
+    max-height: 30vh;
+  }
 }
 
 /* Toast */

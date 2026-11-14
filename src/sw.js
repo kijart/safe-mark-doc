@@ -20,6 +20,7 @@ const ASSETS = [
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
   'icons/apple-touch-icon.png',
+  'img/welcome.webp',
 ];
 
 self.addEventListener('install', (event) => {

@@ -79,6 +79,9 @@
         <svg class="a-icon-btn__icon--light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         <svg class="a-icon-btn__icon--dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
       </button>
+      <button type="button" id="help-btn" class="a-icon-btn" data-i18n-attr="aria-label:top.help;title:top.help" aria-label="What does this app do?" title="What does this app do?">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.9" r="1.2" fill="currentColor"/></svg>
+      </button>
       <button id="install-btn" class="a-btn a-btn--ghost" hidden data-i18n="top.install">Install app</button>
     </div>
   </header>
@@ -260,6 +263,40 @@
       <div class="m-actions o-dialog__actions">
         <button type="button" id="password-cancel" class="a-btn" data-i18n="password.cancel">Cancel</button>
         <button type="submit" class="a-btn a-btn--primary" data-i18n="password.open">Open</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Shown once to first-time visitors; the "?" button in the top bar opens it again. -->
+  <dialog id="welcome-dialog" class="o-dialog o-welcome" aria-labelledby="welcome-title" aria-describedby="welcome-lead">
+    <form method="dialog">
+      <button type="submit" id="welcome-close" class="a-icon-btn o-welcome__close" value="close" data-i18n-attr="aria-label:welcome.close" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <h2 id="welcome-title" data-i18n="welcome.title">Share your ID without the worry</h2>
+      <p id="welcome-lead" class="o-dialog__message" data-i18n="welcome.lead">Mark every copy with who it's for, why and when: it's useless to anyone else.</p>
+      <!-- Decorative: the texts carry the meaning. -->
+      <img class="o-welcome__hero" src="img/welcome.webp" width="1040" height="652" alt="">
+      <ul class="o-welcome__tiles">
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.4-7.5 9.5-4.3-1.1-7.5-4.9-7.5-9.5V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <p><strong data-i18n="welcome.protect.title">Hard to remove.</strong> <span data-i18n="welcome.protect.text">Wavy text, mesh and microtext.</span></p>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3.5L7.5 20.5M16.5 3.5l-2 17M4 8.5h16.5M3.5 15.5H20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <p><strong data-i18n="welcome.trace.title">Trace code.</strong> <span data-i18n="welcome.trace.text">One per copy: if it leaks, you'll know whose it was.</span></p>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 3.5h5.7v5.7H3.5zM14.8 3.5h5.7v5.7h-5.7zM9.2 9.2h5.6v5.6H9.2zM3.5 14.8h5.7v5.7H3.5zM14.8 14.8h5.7v5.7h-5.7z" fill="currentColor"/></svg>
+          <p><strong data-i18n="welcome.redact.title">Hide data.</strong> <span data-i18n="welcome.redact.text">Cover, blur or pixelate what isn't needed.</span></p>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="15.5" r="1.5" fill="currentColor"/></svg>
+          <p><strong data-i18n="welcome.local.title">100% local.</strong> <span data-i18n="welcome.local.text">Nothing is uploaded, and it works offline.</span></p>
+        </li>
+      </ul>
+      <div class="m-actions o-dialog__actions">
+        <button type="submit" id="welcome-start" class="a-btn a-btn--primary" value="start" data-i18n="welcome.start">Get started</button>
       </div>
     </form>
   </dialog>
