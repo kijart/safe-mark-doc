@@ -1,5 +1,5 @@
 // Service worker: precaches the whole app so it works fully offline.
-const VERSION = '1.5.0'; // x-release-please-version
+const VERSION = '1.6.0'; // x-release-please-version
 const APP_CACHE = `safe-mark-doc-v${VERSION}`;
 const SHARE_CACHE = 'share-target';
 
