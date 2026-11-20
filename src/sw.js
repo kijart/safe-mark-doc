@@ -11,6 +11,7 @@ const ASSETS = [
   'js/watermark.js',
   'js/pdf-writer.js',
   'js/redact.js',
+  'js/tone.js',
   'js/i18n.js',
   'vendor/pdfjs/pdf.min.mjs',
   'vendor/pdfjs/pdf.worker.min.mjs',

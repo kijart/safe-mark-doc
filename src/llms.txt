@@ -7,6 +7,7 @@ A watermark states who a copy is for, when it was made and what it may be used f
 - Images (JPG, PNG, WebP…) and PDFs, including password-protected and multi-page PDFs.
 - Watermark text with presets (identity check, rental, bank, job), an optional date in several formats and an optional trace code per copy, recorded in a local log to trace a leaked copy back to its recipient.
 - Hard-to-remove patterns: wavy text, guilloché-style mesh and microtext.
+- The document in grayscale (photocopy look), with the watermark in color.
 - Redaction of sensitive areas: cover, blur or pixelate.
 - Flattened output without metadata, exported to PDF, JPG or PNG, or shared with the system share sheet.
 - Installable Progressive Web App in English and Spanish, with light and dark themes.

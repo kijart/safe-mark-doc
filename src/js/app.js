@@ -1,6 +1,7 @@
 import { drawWatermark } from './watermark.js';
 import { buildPdf } from './pdf-writer.js';
 import { applyRedactions, hitTest, toPixels } from './redact.js';
+import { applyTone } from './tone.js';
 import { detectLanguage, getLanguage, getLocale, LANGUAGES, setLanguage, t, translateDom } from './i18n.js';
 
 const MAX_SIDE = 4096;
@@ -33,6 +34,7 @@ const ui = {
   dateRow: $('date-row'),
   dateFormat: $('date-format'),
   optTime: $('opt-time'),
+  tone: $('doc-tone'),
   optTrace: $('opt-trace'),
   traceRow: $('trace-row'),
   traceCode: $('trace-code'),
@@ -185,6 +187,7 @@ function savePrefs() {
     dateFormat: ui.dateFormat.value,
     time: ui.optTime.checked,
     trace: ui.optTrace.checked,
+    tone: ui.tone.value,
     color: ui.color.value,
     opacity: ui.opacity.value,
     size: ui.size.value,
@@ -206,6 +209,7 @@ function loadPrefs() {
   if ([...ui.dateFormat.options].some((o) => o.value === p.dateFormat)) ui.dateFormat.value = p.dateFormat;
   ui.optTime.checked = p.time ?? false;
   ui.optTrace.checked = p.trace ?? true;
+  if ([...ui.tone.options].some((o) => o.value === p.tone)) ui.tone.value = p.tone;
   ui.color.value = p.color ?? ui.color.value;
   ui.opacity.value = p.opacity ?? ui.opacity.value;
   ui.size.value = p.size ?? ui.size.value;
@@ -372,8 +376,11 @@ async function loadPdf(file, docs, signal) {
   return pages;
 }
 
-/** Draws a page at full resolution onto `target`, resizing it to the page. Aborting `signal` stops a PDF render midway. */
-async function rasterize(page, target, signal) {
+/**
+ * Draws a page at full resolution onto `target`, resizing it to the page, then converts it to `tone`
+ * (the watermark is drawn later, in color). Aborting `signal` stops a PDF render midway.
+ */
+async function rasterize(page, target, signal, tone) {
   const ctx = whiteCanvas(target, page.pxWidth, page.pxHeight);
   if (page.pdf) {
     const pdfPage = await page.pdf.getPage(page.pageNumber);
@@ -401,6 +408,7 @@ async function rasterize(page, target, signal) {
       img.close?.();
     }
   }
+  applyTone(target, tone);
   return target;
 }
 
@@ -571,7 +579,7 @@ function previewRasterFor(page) {
     dropPreviewRaster();
     const canvas = document.createElement('canvas');
     const controller = new AbortController();
-    const promise = rasterize(page, canvas, controller.signal);
+    const promise = rasterize(page, canvas, controller.signal, ui.tone.value);
     // Only show the spinner for slow pages, so quick page turns don't flicker.
     const busyTimer = setTimeout(() => setBusy(t('preview.rendering'), 'preview'), 150);
     previewRaster = { page, promise, canvas, controller, busyTimer };
@@ -884,8 +892,9 @@ async function exportFiles() {
   exportDocs = state.docs;
   // One canvas reused for every page, so only one full-size page is in memory at a time.
   const work = document.createElement('canvas');
+  const tone = ui.tone.value;
   const renderPage = async (page) => {
-    await rasterize(page, work);
+    await rasterize(page, work, undefined, tone);
     decoratePage(work, page, options);
   };
 
@@ -1286,6 +1295,11 @@ function bindEvents() {
   for (const el of [ui.optDate, ui.dateFormat, ui.optTime, ui.optTrace, ui.optWave, ui.optGuilloche, ui.optMicro]) {
     el.addEventListener('change', onOptionsChanged);
   }
+  // The tone is part of the page raster, so the current page renders again.
+  ui.tone.addEventListener('change', () => {
+    dropPreviewRaster();
+    onOptionsChanged();
+  });
 
   ui.traceRegen.addEventListener('click', () => {
     state.traceCode = newTraceCode();

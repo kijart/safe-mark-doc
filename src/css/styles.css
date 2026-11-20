@@ -540,6 +540,12 @@ input[type="radio"] {
   font-size: .9rem;
 }
 
+/* Document tone, first row of "Appearance" */
+.m-tone {
+  display: flex;
+  margin-bottom: 12px;
+}
+
 .m-trace-row {
   display: flex;
   align-items: center;

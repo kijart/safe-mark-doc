@@ -62,6 +62,9 @@ const MESSAGES = {
     'trace.prefix': 'Ref.',
 
     'look.legend': 'Aspecto',
+    'look.tone': 'Documento',
+    'tone.color': 'Color',
+    'tone.gray': 'Escala de grises',
     'look.color': 'Color',
     'color.red': 'Rojo',
     'color.blue': 'Azul',
@@ -222,6 +225,9 @@ const MESSAGES = {
     'trace.prefix': 'Ref.',
 
     'look.legend': 'Appearance',
+    'look.tone': 'Document',
+    'tone.color': 'Color',
+    'tone.gray': 'Grayscale',
     'look.color': 'Color',
     'color.red': 'Red',
     'color.blue': 'Blue',
