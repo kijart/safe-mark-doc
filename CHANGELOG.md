@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/kijart/safe-mark-doc/compare/1.6.0...1.7.0) (2026-11-22)
+
+
+### Features
+
+* **watermark:** show and export the document in grayscale ([b5c16cd](https://github.com/kijart/safe-mark-doc/commit/b5c16cdaafb1394099f52836050c43cb208df4d0))
+
 ## [1.6.0](https://github.com/kijart/safe-mark-doc/compare/1.5.0...1.6.0) (2026-11-14)
 
 
